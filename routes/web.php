@@ -55,6 +55,20 @@ Route::get('/test-vite', function () {
     ]);
 });
 
+// Test rendering a blade view with Vite
+Route::get('/test-blade', function () {
+    try {
+        return view('app');
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString(),
+        ], 500);
+    }
+});
+
 Route::get('/', function () {
     try {
         return Inertia::render('Welcome', [
