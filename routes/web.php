@@ -20,6 +20,8 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Api\AnnouncementController as ApiAnnouncementController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Vite;
 use Inertia\Inertia;
 
 // Test route to debug deployment
@@ -38,6 +40,8 @@ Route::get('/test-vite', function () {
     $manifestPath = public_path('build/.vite/manifest.json');
     $buildPath = public_path('build');
 
+    $manifest = file_exists($manifestPath) ? json_decode(file_get_contents($manifestPath), true) : null;
+
     return response()->json([
         'manifest_exists' => file_exists($manifestPath),
         'manifest_readable' => is_readable($manifestPath),
@@ -46,6 +50,8 @@ Route::get('/test-vite', function () {
         'public_path' => public_path(),
         'manifest_path' => $manifestPath,
         'build_contents' => file_exists($buildPath) ? scandir($buildPath) : null,
+        'manifest_content' => $manifest,
+        'vite_helper' => Vite::isRunningHot(),
     ]);
 });
 
