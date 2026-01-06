@@ -33,6 +33,22 @@ Route::get('/test', function () {
     ]);
 });
 
+// Check Vite manifest
+Route::get('/test-vite', function () {
+    $manifestPath = public_path('build/.vite/manifest.json');
+    $buildPath = public_path('build');
+
+    return response()->json([
+        'manifest_exists' => file_exists($manifestPath),
+        'manifest_readable' => is_readable($manifestPath),
+        'build_dir_exists' => file_exists($buildPath),
+        'build_dir_readable' => is_readable($buildPath),
+        'public_path' => public_path(),
+        'manifest_path' => $manifestPath,
+        'build_contents' => file_exists($buildPath) ? scandir($buildPath) : null,
+    ]);
+});
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
