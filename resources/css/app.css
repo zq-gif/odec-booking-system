@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Animations and Styles for UMS Beach Club */
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply antialiased;
+    }
+}
+
+@layer components {
+    /* Smooth scroll offset for fixed header */
+    section {
+        scroll-margin-top: 6rem;
+    }
+
+    /* Enhanced gradient text */
+    .gradient-text {
+        @apply bg-gradient-to-r from-blue-600 via-orange-600 to-amber-600 bg-clip-text text-transparent;
+    }
+
+    /* Card hover effects */
+    .beach-card {
+        @apply transition-all duration-300 hover:shadow-2xl hover:-translate-y-2;
+    }
+
+    /* Button animations */
+    .beach-button {
+        @apply transition-all duration-300 transform hover:scale-105 hover:shadow-2xl;
+    }
+}
+
+@layer utilities {
+    /* Custom animation utilities */
+    .animate-float {
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .animate-pulse-slow {
+        animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Backdrop blur utilities */
+    .backdrop-blur-safari {
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+    }
+}
+
+/* Keyframe Animations */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Smooth scrollbar styling */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-gradient-to-b from-orange-400 to-amber-500 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-gradient-to-b from-orange-500 to-amber-600;
+}
+
+/* Selection color */
+::selection {
+    @apply bg-orange-200 text-orange-900;
+}
+
+::-moz-selection {
+    @apply bg-orange-200 text-orange-900;
+}

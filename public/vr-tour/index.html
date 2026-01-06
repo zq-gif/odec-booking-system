@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Tour - A-Frame</title>
+    <meta name="description" content="Interactive Virtual Tour built with A-Frame">
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@5.0.0/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-layout-component@5.3.0/dist/aframe-layout-component.min.js"></script>
+    <script src="/vr-tour/js/position-helper.js"></script>
+    <script src="/vr-tour/js/navigation.js" defer></script>
+</head>
+<body>
+    <a-scene>
+        <!-- Asset Management -->
+        <a-assets>
+            <!-- Banner image for entrance -->
+            <img id="banner" src="/vr-tour/assets/images/banner.png" crossorigin="anonymous">
+            <!-- Info images for parking 1 -->
+            <img id="feeInfo" src="/vr-tour/assets/images/fee-info.png" crossorigin="anonymous">
+            <img id="parkInfo" src="/vr-tour/assets/images/park-info.png" crossorigin="anonymous">
+            <!-- 360 Images for the tour - Using your existing Scenes -->
+            <img id="entrance" src="/vr-tour/Scenes/entrance.jpg" crossorigin="anonymous">
+            <img id="parking1" src="/vr-tour/Scenes/parking 1.jpg" crossorigin="anonymous">
+            <img id="parking2" src="/vr-tour/Scenes/parking 2.jpg" crossorigin="anonymous">
+            <img id="main1" src="/vr-tour/Scenes/main 1.jpg" crossorigin="anonymous">
+            <img id="main2" src="/vr-tour/Scenes/main 2.jpg" crossorigin="anonymous">
+            <img id="main3" src="/vr-tour/Scenes/main 3.jpg" crossorigin="anonymous">
+            <img id="main4" src="/vr-tour/Scenes/main 4.jpg" crossorigin="anonymous">
+            <img id="main5" src="/vr-tour/Scenes/main 5.jpg" crossorigin="anonymous">
+            <img id="jetty" src="/vr-tour/Scenes/Jetty UMS.jpg" crossorigin="anonymous">
+            <img id="platform1" src="/vr-tour/Scenes/platform 1.jpg" crossorigin="anonymous">
+            <img id="platform2" src="/vr-tour/Scenes/platform 2.jpg" crossorigin="anonymous">
+            <img id="campsite1" src="/vr-tour/Scenes/campsite 1.jpg" crossorigin="anonymous">
+            <img id="campsite2" src="/vr-tour/Scenes/campsite 2.jpg" crossorigin="anonymous">
+            <img id="campsite3" src="/vr-tour/Scenes/campsite 3.jpg" crossorigin="anonymous">
+        </a-assets>
+
+        <!-- Sky: 360-degree panoramic image - Start with Entrance -->
+        <a-sky id="image-360" src="#entrance" rotation="0 -130 0"></a-sky>
+
+        <!-- Camera with controls -->
+        <a-entity id="camera" camera look-controls wasd-controls position="0 1.6 0">
+            <!-- Cursor for interaction -->
+            <a-cursor 
+                id="cursor"
+                animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+                animation__fusing="property: fuse-scale; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
+                event-set__mouseenter="_event: mouseenter; color: springgreen"
+                event-set__mouseleave="_event: mouseleave; color: white"
+                raycaster="objects: .clickable">
+            </a-cursor>
+        </a-entity>
+
+        <!-- Navigation Hotspots - Complete Tour Flow -->
+
+        <!-- Scene 1: Jetty UMS - Recreated ring hotspot -->
+        <a-entity id="nav-jetty" visible="false">
+            <!-- Pulsing ring hotspot on floor -->
+            <a-ring
+                position="-7 0 7"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="entrance">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Center circle with arrow -->
+            <a-circle
+                position="-7 0 7"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="entrance">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+        </a-entity>
+
+        <!-- Scene 2: Entrance - Ring hotspot to Parking 2 -->
+        <a-entity id="nav-entrance" visible="true">
+            <!-- Welcome Banner -->
+            <a-image
+                src="#banner"
+                position="-7 4 8"
+                rotation="0 140 0"
+                width="6"
+                height="2"
+                opacity="1">
+            </a-image>
+
+            <!-- Green ring hotspot to go forward to Parking 2 -->
+            <a-ring
+                position="-5 0.05 5.2"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="parking2">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Center circle with arrow -->
+            <a-circle
+                position="-5 0.05 5.2"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="parking2">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+
+            <!-- Blue ring to go back to Jetty -->
+            <a-ring
+                position="8 0.1 -3.5"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#2196F3"
+                opacity="0.85"
+                class="clickable"
+                data-room="jetty">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Blue center circle with left arrow -->
+            <a-circle
+                position="8 0.1 -3.5"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="jetty">
+                <a-text
+                    value="◄"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#2196F3"
+                    rotation="0 0 90">
+                </a-text>
+            </a-circle>
+        </a-entity>
+
+        <!-- Scene 3: Parking 2 - Ring hotspot to Parking 1 -->
+        <a-entity id="nav-parking2" visible="false">
+            <!-- Green ring hotspot to go forward to Parking 1 -->
+            <a-ring
+                position="5 0.05 0"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="parking1">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Center circle with arrow -->
+            <a-circle
+                position="5 0.05 0"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="parking1">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+
+            <!-- Blue ring to go back to Entrance -->
+            <a-ring
+                position="-5 0.05 0"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#2196F3"
+                opacity="0.85"
+                class="clickable"
+                data-room="entrance">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Blue center circle with left arrow -->
+            <a-circle
+                position="-5 0.05 0"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="entrance">
+                <a-text
+                    value="◄"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#2196F3"
+                    rotation="0 0 90">
+                </a-text>
+            </a-circle>
+        </a-entity>
+
+        <!-- Scene 4: Parking 1 - Ring hotspots to Main 5 and Parking 2 -->
+        <a-entity id="nav-parking1" visible="false">
+            <!-- Fee Info Board -->
+            <a-image
+                src="#feeInfo"
+                position="-7 2.5 1"
+                rotation="0 135 0"
+                width="4"
+                height="2"
+                opacity="1">
+            </a-image>
+
+            <!-- Park Info Board -->
+            <a-image
+                src="#parkInfo"
+                position="-7 0 1"
+                rotation="0 135 0"
+                width="4"
+                height="1.5"
+                opacity="1">
+            </a-image>
+
+            <!-- Green ring hotspot to go forward to Main 5 -->
+            <a-ring
+                position="-6 0.05 6"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="main5">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Green center circle with arrow -->
+            <a-circle
+                position="-6 0.05 6"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="main5">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+
+            <!-- Blue ring to go back to Parking 2 -->
+            <a-ring
+                position="2.73 0.05 -4.77"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#2196F3"
+                opacity="0.85"
+                class="clickable"
+                data-room="parking2">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Blue center circle with left arrow -->
+            <a-circle
+                position="2.73 0.05 -4.77"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="parking2">
+                <a-text
+                    value="◄"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#2196F3"
+                    rotation="0 0 90">
+                </a-text>
+            </a-circle>
+        </a-entity>
+
+        <!-- Scene 5: Main 5 - Ring hotspots to Main 4 and Parking 1 -->
+        <a-entity id="nav-main5" visible="false">
+            <!-- Green ring hotspot to go forward to Main 4 -->
+            <a-ring
+                position="-7 0.05 5"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="main4">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Green center circle with arrow -->
+            <a-circle
+                position="-7 0.05 5"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="main4">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+
+            <!-- Blue ring to go back to Parking 1 -->
+            <a-ring
+                position="6.5 0.05 -5"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#2196F3"
+                opacity="0.85"
+                class="clickable"
+                data-room="parking1">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Blue center circle with left arrow -->
+            <a-circle
+                position="6.5 0.05 -5"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="parking1">
+                <a-text
+                    value="◄"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#2196F3"
+                    rotation="0 0 90">
+                </a-text>
+            </a-circle>
+        </a-entity>
+
+        <!-- Scene 6: Main 4 - Ring hotspots to Main 3 and Main 5 -->
+        <a-entity id="nav-main4" visible="false">
+            <!-- Green ring hotspot to go forward to Main 3 -->
+            <a-ring
+                position="6 0.05 6"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="main3">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Green center circle with arrow -->
+            <a-circle
+                position="6 0.05 6"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="main3">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+
+            <!-- Blue ring to go back to Main 5 -->
+            <a-ring
+                position="-5 0.05 0"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#2196F3"
+                opacity="0.85"
+                class="clickable"
+                data-room="main5">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Blue center circle with left arrow -->
+            <a-circle
+                position="-5 0.05 0"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="main5">
+                <a-text
+                    value="◄"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#2196F3"
+                    rotation="0 0 90">
+                </a-text>
+            </a-circle>
+
+            <!-- Second green ring hotspot to go to Main 2 -->
+            <a-ring
+                position="7.55 0.05 -5.8"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="main2">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Second green center circle with arrow -->
+            <a-circle
+                position="7.55 0.05 -5.8"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="main2">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+        </a-entity>
+
+        <!-- Scene 7: Main 3 - Ring hotspots to Main 2 and Main 4 -->
+        <a-entity id="nav-main3" visible="false">
+            <!-- Green ring hotspot to go forward to Main 2 -->
+            <a-ring
+                position="7 0.05 5"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="main2">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Green center circle with arrow -->
+            <a-circle
+                position="7 0.05 5"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="main2">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+
+            <!-- Blue ring to go back to Main 4 -->
+            <a-ring
+                position="6.5 0.05 -4.5"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#2196F3"
+                opacity="0.85"
+                class="clickable"
+                data-room="main4">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Blue center circle with left arrow -->
+            <a-circle
+                position="6.5 0.05 -4.5"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="main4">
+                <a-text
+                    value="◄"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#2196F3"
+                    rotation="0 0 90">
+                </a-text>
+            </a-circle>
+
+            <!-- Second green ring hotspot to go to Main 1 -->
+            <a-ring
+                position="-1 0.05 8"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="main1">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Second green center circle with arrow -->
+            <a-circle
+                position="-1 0.05 8"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="main1">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+        </a-entity>
+
+        <!-- Scene 8: Main 2 - Ring hotspots to Main 1 and Main 4 -->
+        <a-entity id="nav-main2" visible="false">
+            <!-- Green ring hotspot to go forward to Main 1 -->
+            <a-ring
+                position="5 0.05 7"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="main1">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Green center circle with arrow -->
+            <a-circle
+                position="5 0.05 7"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="main1">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+
+            <!-- Blue ring to go back to Main 4 -->
+            <a-ring
+                position="-6 0.05 2"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#2196F3"
+                opacity="0.85"
+                class="clickable"
+                data-room="main4">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Blue center circle with left arrow -->
+            <a-circle
+                position="-6 0.05 2"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="main4">
+                <a-text
+                    value="◄"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#2196F3"
+                    rotation="0 0 90">
+                </a-text>
+            </a-circle>
+
+            <!-- Second blue ring to go back to Main 3 -->
+            <a-ring
+                position="0 0.05 8"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#2196F3"
+                opacity="0.85"
+                class="clickable"
+                data-room="main3">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Second blue center circle with left arrow -->
+            <a-circle
+                position="0 0.05 8"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="main3">
+                <a-text
+                    value="◄"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#2196F3"
+                    rotation="0 0 90">
+                </a-text>
+            </a-circle>
+        </a-entity>
+
+        <!-- Scene 9: Main 1 - Ring hotspots to Platform 1 and Main 2 -->
+        <a-entity id="nav-main1" visible="false">
+            <!-- Green ring hotspot to go forward to Platform 1 -->
+            <a-ring
+                position="6 0.05 4"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="platform1">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Green center circle with arrow -->
+            <a-circle
+                position="6 0.05 4"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="platform1">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+
+            <!-- Blue ring to go back to Main 2 -->
+            <a-ring
+                position="-4.5 0.05 -5.5"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#2196F3"
+                opacity="0.85"
+                class="clickable"
+                data-room="main2">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Blue center circle with left arrow -->
+            <a-circle
+                position="-4.5 0.05 -5.5"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="main2">
+                <a-text
+                    value="◄"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#2196F3"
+                    rotation="0 0 90">
+                </a-text>
+            </a-circle>
+        </a-entity>
+
+        <!-- Scene 10: Platform 1 - Ring hotspots to Platform 2, Campsite 3, and Main 1 -->
+        <a-entity id="nav-platform1" visible="false">
+            <!-- Green ring hotspot to go to Platform 2 -->
+            <a-ring
+                position="4.37 0.05 -4.12"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="platform2">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Green center circle with arrow -->
+            <a-circle
+                position="4.37 0.05 -4.12"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="platform2">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+
+            <!-- Blue ring to go back to Main 1 -->
+            <a-ring
+                position="-3 0.05 -5"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#2196F3"
+                opacity="0.85"
+                class="clickable"
+                data-room="main1">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Blue center circle with left arrow -->
+            <a-circle
+                position="-3 0.05 -5"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="main1">
+                <a-text
+                    value="◄"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#2196F3"
+                    rotation="0 0 90">
+                </a-text>
+            </a-circle>
+
+            <!-- Second green ring to go to Campsite 3 -->
+            <a-ring
+                position="-2 0.05 8"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="campsite3">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Second green center circle with arrow -->
+            <a-circle
+                position="-2 0.05 8"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="campsite3">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+        </a-entity>
+
+        <!-- Scene 11: Platform 2 - Ring hotspots to Campsite 3 and Platform 1 -->
+        <a-entity id="nav-platform2" visible="false">
+            <!-- Blue ring to go back to Platform 1 -->
+            <a-ring
+                position="-3 -0.05 2.75 "
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#2196F3"
+                opacity="0.85"
+                class="clickable"
+                data-room="platform1">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Blue center circle with left arrow -->
+            <a-circle
+                position="-3 -0.05 2.75 "
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="platform1">
+                <a-text
+                    value="◄"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#2196F3"
+                    rotation="0 0 90">
+                </a-text>
+            </a-circle>
+        </a-entity>
+
+        <!-- Scene 12: Campsite 3 - Ring hotspots to Campsite 2 and Platform 1 -->
+        <a-entity id="nav-campsite3" visible="false">
+            <!-- Green ring hotspot to go to Campsite 2 -->
+            <a-ring
+                position="-1 0.05 3"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="campsite2">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Green center circle with arrow -->
+            <a-circle
+                position="-1 0.05 3"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="campsite2">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+
+            <!-- Blue ring to go back to Platform 1 -->
+            <a-ring
+                position="5.2 0.05 -1.97"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#2196F3"
+                opacity="0.85"
+                class="clickable"
+                data-room="platform1">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Blue center circle with left arrow -->
+            <a-circle
+                position="5.2 0.05 -1.97"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="platform1">
+                <a-text
+                    value="◄"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#2196F3"
+                    rotation="0 0 90">
+                </a-text>
+            </a-circle>
+        </a-entity>
+
+        <!-- Scene 13: Campsite 2 - Ring hotspots to Campsite 1 and Campsite 3 -->
+        <a-entity id="nav-campsite2" visible="false">
+            <!-- Green ring hotspot to go to Campsite 1 -->
+            <a-ring
+                position="-2.5 0.05 5"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#00E676"
+                opacity="0.85"
+                class="clickable"
+                data-room="campsite1">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Green center circle with arrow -->
+            <a-circle
+                position="-2.5 0.05 5"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="campsite1">
+                <a-text
+                    value="▶"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#00E676"
+                    rotation="0 0 -90">
+                </a-text>
+            </a-circle>
+
+            <!-- Blue ring to go back to Campsite 3 -->
+            <a-ring
+                position="-2.01 0.05 -4.12"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#2196F3"
+                opacity="0.85"
+                class="clickable"
+                data-room="campsite3">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Blue center circle with left arrow -->
+            <a-circle
+                position="-2.01 0.05 -4.12"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="campsite3">
+                <a-text
+                    value="◄"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#2196F3"
+                    rotation="0 0 90">
+                </a-text>
+            </a-circle>
+        </a-entity>
+
+        <!-- Scene 14: Campsite 1 (Final) - Blue ring to go back to Campsite 2 -->
+        <a-entity id="nav-campsite1" visible="false">
+            <!-- Blue ring to go back to Campsite 2 -->
+            <a-ring
+                position="7.49 0.05 2"
+                rotation="-90 0 0"
+                radius-inner="0.4"
+                radius-outer="0.6"
+                color="#2196F3"
+                opacity="0.85"
+                class="clickable"
+                data-room="campsite2">
+                <a-animation
+                    attribute="scale"
+                    from="1 1 1"
+                    to="1.25 1.25 1.25"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+                <a-animation
+                    attribute="opacity"
+                    from="0.85"
+                    to="0.4"
+                    direction="alternate"
+                    dur="1200"
+                    repeat="indefinite"
+                    easing="ease-in-out-sine">
+                </a-animation>
+            </a-ring>
+
+            <!-- Blue center circle with left arrow -->
+            <a-circle
+                position="7.49 0.05 2"
+                rotation="-90 0 0"
+                radius="0.35"
+                color="#FFFFFF"
+                opacity="0.95"
+                class="clickable"
+                data-room="campsite2">
+                <a-text
+                    value="◄"
+                    align="center"
+                    position="0 0 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#2196F3"
+                    rotation="0 0 90">
+                </a-text>
+            </a-circle>
+        </a-entity>
+
+        <!-- Lighting -->
+        <a-light type="ambient" color="#FFF" intensity="0.5"></a-light>
+        <a-light type="directional" color="#FFF" intensity="0.3" position="-1 1 0"></a-light>
+    </a-scene>
+</body>
+</html>

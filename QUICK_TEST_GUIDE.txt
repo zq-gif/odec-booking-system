@@ -1,0 +1,131 @@
+═══════════════════════════════════════════════════════════════
+   UMS BEACH BOOKING SYSTEM - QUICK TEST GUIDE
+═══════════════════════════════════════════════════════════════
+
+🎯 QUICK START (5 Minutes)
+
+1. Server is RUNNING at: http://127.0.0.1:8000
+
+2. Test in this order:
+
+   ✅ STEP 1: Open Welcome Page
+      URL: http://127.0.0.1:8000
+      Check: Orange/amber beach theme visible
+
+   ✅ STEP 2: Register New User
+      URL: http://127.0.0.1:8000/register
+      Create account with:
+      - Email: test@example.com
+      - Password: password123
+
+   ✅ STEP 3: Login
+      URL: http://127.0.0.1:8000/login
+      Use credentials from Step 2
+
+   ✅ STEP 4: View Dashboard
+      Should auto-redirect after login
+      Check: Welcome message with your name
+
+   ✅ STEP 5: Test VR Tour
+      Scroll to purple "VR Tour" section
+      Click "Start VR Tour" button
+      Check: New window opens with A-Frame VR tour
+
+   ✅ STEP 6: Book a Facility
+      URL: http://127.0.0.1:8000/book-facility
+      - Select facility
+      - Choose date/time
+      - Confirm booking
+      Check: Success message appears
+
+   ✅ STEP 7: View My Bookings
+      URL: http://127.0.0.1:8000/my-bookings
+      Check: Your booking appears
+
+═══════════════════════════════════════════════════════════════
+
+📱 MOBILE VR TEST (Critical!)
+
+1. Open on phone: http://127.0.0.1:8000
+   (Or use your local network IP)
+
+2. Login to account
+
+3. Click "Start VR Tour"
+
+4. Allow device orientation access
+
+5. Move phone around - should see 360° view
+
+═══════════════════════════════════════════════════════════════
+
+🔧 IF SOMETHING BREAKS
+
+Problem: Server not responding
+Fix: Restart server
+     cd C:\Odec\OdecBookingSystem\odec-booking-system
+     php artisan serve
+
+Problem: White screen / errors
+Fix: Clear cache
+     php artisan config:clear
+     php artisan cache:clear
+
+Problem: Styling broken
+Fix: Rebuild assets
+     npm run build
+
+Problem: Database errors
+Fix: Check logs
+     storage/logs/laravel.log
+
+═══════════════════════════════════════════════════════════════
+
+📚 FULL DOCUMENTATION
+
+For detailed testing:
+- TESTING_SUMMARY.md (Overview)
+- TEST_CHECKLIST.md (Step-by-step checklist)
+- FUNCTIONAL_TEST_REPORT.md (Complete report)
+
+═══════════════════════════════════════════════════════════════
+
+✅ WHAT'S ALREADY TESTED (Automated)
+
+✅ Database structure verified
+✅ All routes working
+✅ VR files copied and accessible
+✅ Build system passing
+✅ Beach theme implemented
+✅ Critical bugs fixed
+
+═══════════════════════════════════════════════════════════════
+
+⏳ WHAT YOU NEED TO TEST (Manual)
+
+⏳ User registration workflow
+⏳ Login functionality
+⏳ Booking creation
+⏳ VR tour on mobile devices
+⏳ Admin dashboard features
+⏳ Responsive design
+
+═══════════════════════════════════════════════════════════════
+
+🎨 LOOK FOR (Visual Check)
+
+✓ Orange/amber colors throughout
+✓ Smooth gradients on banners
+✓ Rounded buttons (pill-shaped)
+✓ Beach/sun icons
+✓ "Welcome Back!" on login
+✓ "Join Us Today!" on register
+✓ Purple VR section on dashboard
+
+═══════════════════════════════════════════════════════════════
+
+Current Status: ✅ READY FOR MANUAL TESTING
+Server Status: ✅ RUNNING
+URL: http://127.0.0.1:8000
+
+Happy Testing! 🏖️

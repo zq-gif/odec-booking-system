@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build Files
+dist/
+build/
+
+# Large media files (optional - remove if you want to commit them)
+# assets/images/*.jpg
+# assets/images/*.png
+# assets/sounds/*.mp3
+# assets/sounds/*.wav
+
+# Logs
+*.log
+npm-debug.log*
