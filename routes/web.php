@@ -22,6 +22,17 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// Test route to debug deployment
+Route::get('/test', function () {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Laravel is working!',
+        'app_debug' => config('app.debug'),
+        'app_env' => config('app.env'),
+        'database' => DB::connection()->getDatabaseName(),
+    ]);
+});
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
