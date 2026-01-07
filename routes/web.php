@@ -106,6 +106,11 @@ Route::get('/test-blade', function () {
     }
 });
 
+// Public VR Tour route (no authentication required)
+Route::get('/public-vr-tour', function () {
+    return redirect('/vr-tour/index.html');
+})->name('public-vr-tour');
+
 Route::get('/', function () {
     try {
         return Inertia::render('Welcome', [

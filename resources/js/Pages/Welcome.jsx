@@ -181,10 +181,15 @@ export default function Welcome({ auth }) {
                                             <ArrowRightIcon className="ml-2 h-5 w-5" />
                                         </Link>
                                     )}
-                                    {/*<button className="px-8 py-4 bg-white text-gray-700 rounded-full hover:bg-gray-50 font-bold shadow-lg hover:shadow-xl transition-all inline-flex items-center justify-center border-2 border-gray-200 text-lg">
-                                        <PlayCircleIcon className="mr-2 h-6 w-6 text-orange-600" />
-                                        Watch Tour
-                                    </button>*/}
+                                    <a
+                                        href="/public-vr-tour"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-8 py-4 bg-white text-gray-700 rounded-full hover:bg-gray-50 font-bold shadow-lg hover:shadow-xl transition-all inline-flex items-center justify-center border-2 border-gray-200 text-lg"
+                                    >
+                                        <CameraIcon className="mr-2 h-6 w-6 text-orange-600" />
+                                        Virtual Tour
+                                    </a>
                                 </div>
                             </div>
 
