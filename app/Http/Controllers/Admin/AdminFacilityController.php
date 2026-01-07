@@ -31,18 +31,42 @@ class AdminFacilityController extends Controller
             'description' => 'required|string',
             'capacity' => 'required|integer|min:1',
             'price_per_hour' => 'required|numeric|min:0',
-            'image' => 'nullable|string|max:1000',
+            'slot_duration' => 'nullable|integer|min:1|max:24',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:12288',
+            'image_url' => 'nullable|string|max:1000',
+            'vr_tour_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:12288',
+            'vr_tour_image_url' => 'nullable|string|max:1000',
             'amenities' => 'nullable|string',
             'location' => 'nullable|string|max:255',
             'status' => 'required|in:available,maintenance,unavailable',
         ]);
+
+        // Handle image upload
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('facilities', 'public');
+            $imagePath = '/storage/' . $imagePath;
+        } elseif ($request->image_url) {
+            $imagePath = $request->image_url;
+        }
+
+        // Handle VR tour image upload
+        $vrTourImagePath = null;
+        if ($request->hasFile('vr_tour_image')) {
+            $vrTourImagePath = $request->file('vr_tour_image')->store('facilities/vr', 'public');
+            $vrTourImagePath = '/storage/' . $vrTourImagePath;
+        } elseif ($request->vr_tour_image_url) {
+            $vrTourImagePath = $request->vr_tour_image_url;
+        }
 
         Facility::create([
             'name' => $request->name,
             'description' => $request->description,
             'capacity' => $request->capacity,
             'price_per_hour' => $request->price_per_hour,
-            'image' => $request->image,
+            'slot_duration' => $request->slot_duration,
+            'image' => $imagePath,
+            'vr_tour_image' => $vrTourImagePath,
             'amenities' => $request->amenities,
             'location' => $request->location,
             'status' => $request->status,
@@ -63,18 +87,42 @@ class AdminFacilityController extends Controller
             'description' => 'required|string',
             'capacity' => 'required|integer|min:1',
             'price_per_hour' => 'required|numeric|min:0',
-            'image' => 'nullable|string|max:1000',
+            'slot_duration' => 'nullable|integer|min:1|max:24',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:12288',
+            'image_url' => 'nullable|string|max:1000',
+            'vr_tour_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:12288',
+            'vr_tour_image_url' => 'nullable|string|max:1000',
             'amenities' => 'nullable|string',
             'location' => 'nullable|string|max:255',
             'status' => 'required|in:available,maintenance,unavailable',
         ]);
+
+        // Handle image upload
+        $imagePath = $facility->image; // Keep existing image by default
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('facilities', 'public');
+            $imagePath = '/storage/' . $imagePath;
+        } elseif ($request->filled('image_url')) {
+            $imagePath = $request->image_url;
+        }
+
+        // Handle VR tour image upload
+        $vrTourImagePath = $facility->vr_tour_image; // Keep existing VR tour image by default
+        if ($request->hasFile('vr_tour_image')) {
+            $vrTourImagePath = $request->file('vr_tour_image')->store('facilities/vr', 'public');
+            $vrTourImagePath = '/storage/' . $vrTourImagePath;
+        } elseif ($request->filled('vr_tour_image_url')) {
+            $vrTourImagePath = $request->vr_tour_image_url;
+        }
 
         $facility->update([
             'name' => $request->name,
             'description' => $request->description,
             'capacity' => $request->capacity,
             'price_per_hour' => $request->price_per_hour,
-            'image' => $request->image,
+            'slot_duration' => $request->slot_duration,
+            'image' => $imagePath,
+            'vr_tour_image' => $vrTourImagePath,
             'amenities' => $request->amenities,
             'location' => $request->location,
             'status' => $request->status,

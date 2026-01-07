@@ -14,12 +14,12 @@ class Facility extends Model
         'slot_duration',
         'capacity',
         'image',
+        'vr_tour_image',
         'status',
         'amenities',
     ];
 
     protected $casts = [
-        'amenities' => 'array',
         'price_per_hour' => 'decimal:2',
     ];
 
