@@ -24,54 +24,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Vite;
 use Inertia\Inertia;
 
-// Temporary route to seed admin user (REMOVE AFTER USE)
-Route::get('/seed-admin', function () {
-    try {
-        // Check table columns first
-        $columns = \Illuminate\Support\Facades\Schema::getColumnListing('users');
-
-        // Try to create admin user directly
-        $admin = \App\Models\User::updateOrCreate(
-            ['email' => 'admin@odec.com'],
-            [
-                'name' => 'Admin',
-                'username' => 'admin',
-                'phone_number' => null,
-                'password' => bcrypt('admin123'),
-                'role' => 'admin',
-                'email_verified_at' => now(),
-            ]
-        );
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Admin user created successfully!',
-            'table_columns' => $columns,
-            'admin_exists' => $admin ? true : false,
-            'admin_data' => $admin ? [
-                'id' => $admin->id,
-                'name' => $admin->name,
-                'username' => $admin->username,
-                'email' => $admin->email,
-                'role' => $admin->role,
-            ] : null,
-            'credentials' => [
-                'username' => 'admin',
-                'email' => 'admin@odec.com',
-                'password' => 'admin123'
-            ]
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-            'trace' => explode("\n", $e->getTraceAsString()),
-        ], 500);
-    }
-});
-
 // Check Vite manifest
 Route::get('/test-vite', function () {
     $manifestPath = public_path('build/.vite/manifest.json');
