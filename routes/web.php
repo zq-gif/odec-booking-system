@@ -27,15 +27,26 @@ use Inertia\Inertia;
 // Temporary route to seed admin user (REMOVE AFTER USE)
 Route::get('/seed-admin', function () {
     try {
-        \Illuminate\Support\Facades\Artisan::call('db:seed', [
-            '--class' => 'Database\\Seeders\\AdminUserSeeder'
-        ]);
+        // Check table columns first
+        $columns = \Illuminate\Support\Facades\Schema::getColumnListing('users');
 
-        $admin = \App\Models\User::where('email', 'admin@odec.com')->first();
+        // Try to create admin user directly
+        $admin = \App\Models\User::updateOrCreate(
+            ['email' => 'admin@odec.com'],
+            [
+                'name' => 'Admin',
+                'username' => 'admin',
+                'phone_number' => null,
+                'password' => bcrypt('admin123'),
+                'role' => 'admin',
+                'email_verified_at' => now(),
+            ]
+        );
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Admin user seeded successfully!',
+            'message' => 'Admin user created successfully!',
+            'table_columns' => $columns,
             'admin_exists' => $admin ? true : false,
             'admin_data' => $admin ? [
                 'id' => $admin->id,
@@ -54,7 +65,9 @@ Route::get('/seed-admin', function () {
         return response()->json([
             'status' => 'error',
             'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => explode("\n", $e->getTraceAsString()),
         ], 500);
     }
 });
