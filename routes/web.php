@@ -24,41 +24,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Vite;
 use Inertia\Inertia;
 
-// Test route to debug deployment
-Route::get('/test', function () {
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Laravel is working!',
-        'app_debug' => config('app.debug'),
-        'app_env' => config('app.env'),
-        'database' => DB::connection()->getDatabaseName(),
-    ]);
-});
-
-// Temporary route to seed admin user (REMOVE AFTER USE)
-Route::get('/seed-admin', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('db:seed', [
-            '--class' => 'Database\\Seeders\\AdminUserSeeder'
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Admin user seeded successfully!',
-            'credentials' => [
-                'username' => 'admin',
-                'email' => 'admin@odec.com',
-                'password' => 'admin123'
-            ]
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage(),
-        ], 500);
-    }
-});
-
 // Check Vite manifest
 Route::get('/test-vite', function () {
     $manifestPath = public_path('build/.vite/manifest.json');
