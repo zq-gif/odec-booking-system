@@ -259,6 +259,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Facility Management
     Route::resource('facilities', AdminFacilityController::class)->except(['create', 'edit', 'show']);
+    Route::post('facilities/{facility}', [AdminFacilityController::class, 'update'])->name('facilities.update.post');
 
     // Activity Management
     Route::resource('activities', ActivityController::class)->except(['create', 'edit', 'show']);
