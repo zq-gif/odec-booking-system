@@ -12,14 +12,16 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\User::create([
-            'name' => 'Admin',
-            'username' => 'admin',
-            'email' => 'admin@odec.com',
-            'phone_number' => null,
-            'password' => bcrypt('admin123'),
-            'role' => 'admin',
-            'email_verified_at' => now(),
-        ]);
+        \App\Models\User::updateOrCreate(
+            ['email' => 'admin@odec.com'],
+            [
+                'name' => 'Admin',
+                'username' => 'admin',
+                'phone_number' => null,
+                'password' => bcrypt('admin123'),
+                'role' => 'admin',
+                'email_verified_at' => now(),
+            ]
+        );
     }
 }

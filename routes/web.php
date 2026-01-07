@@ -24,6 +24,41 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Vite;
 use Inertia\Inertia;
 
+// Temporary route to seed admin user (REMOVE AFTER USE)
+Route::get('/seed-admin', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('db:seed', [
+            '--class' => 'Database\\Seeders\\AdminUserSeeder'
+        ]);
+
+        $admin = \App\Models\User::where('email', 'admin@odec.com')->first();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Admin user seeded successfully!',
+            'admin_exists' => $admin ? true : false,
+            'admin_data' => $admin ? [
+                'id' => $admin->id,
+                'name' => $admin->name,
+                'username' => $admin->username,
+                'email' => $admin->email,
+                'role' => $admin->role,
+            ] : null,
+            'credentials' => [
+                'username' => 'admin',
+                'email' => 'admin@odec.com',
+                'password' => 'admin123'
+            ]
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ], 500);
+    }
+});
+
 // Check Vite manifest
 Route::get('/test-vite', function () {
     $manifestPath = public_path('build/.vite/manifest.json');
