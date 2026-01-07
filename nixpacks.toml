@@ -12,7 +12,11 @@ cmds = [
   "npm run build",
   "php artisan config:clear",
   "php artisan route:clear",
-  "php artisan view:clear"
+  "php artisan view:clear",
+  "echo 'upload_max_filesize = 12M' > /etc/php82/conf.d/uploads.ini",
+  "echo 'post_max_size = 12M' >> /etc/php82/conf.d/uploads.ini",
+  "echo 'max_execution_time = 300' >> /etc/php82/conf.d/uploads.ini",
+  "echo 'memory_limit = 256M' >> /etc/php82/conf.d/uploads.ini"
 ]
 
 [start]
