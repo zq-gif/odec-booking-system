@@ -5,6 +5,7 @@ use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\FacilityBookingController;
 use App\Http\Controllers\ActivityBookingController;
 use App\Http\Controllers\BookingActionController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\VRTourController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AdminFacilityController;
@@ -221,6 +222,9 @@ Route::get('/my-bookings', function () {
         'bookings' => $allBookings
     ]);
 })->middleware(['auth', 'verified'])->name('my-bookings');
+
+// Language Switcher
+Route::post('/language', [LanguageController::class, 'switch'])->name('language.switch');
 
 // User Booking Actions (Cancel and Modify)
 Route::post('/bookings/{id}/cancel', [BookingActionController::class, 'cancel'])

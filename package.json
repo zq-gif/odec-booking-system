@@ -32,6 +32,7 @@
         "aframe": "^1.7.1",
         "pannellum": "^2.5.6",
         "react-pannellum": "^0.2.16",
+        "recharts": "^3.6.0",
         "ziggy-js": "^2.6.0"
     }
 }
