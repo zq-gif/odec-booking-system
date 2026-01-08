@@ -4,9 +4,8 @@ import {
     ChatBubbleLeftRightIcon,
     XMarkIcon,
     PaperAirplaneIcon,
-    SparklesIcon,
+    QuestionMarkCircleIcon,
     ArrowPathIcon,
-    BookmarkIcon,
 } from '@heroicons/react/24/outline';
 
 export default function ChatBot() {
@@ -14,7 +13,7 @@ export default function ChatBot() {
     const [messages, setMessages] = useState([
         {
             type: 'bot',
-            text: 'Hello! 👋 I\'m your ODEC UMS Beach Club AI Assistant. I can help you with bookings, facilities, activities, and more!',
+            text: 'Hello! 👋 Welcome to ODEC UMS Beach Club FAQ Bot. I can answer your questions about bookings, facilities, activities, and more!',
             timestamp: new Date(),
             suggestions: ['Book a facility', 'View activities', 'Check pricing', 'Operating hours']
         }
@@ -486,10 +485,12 @@ export default function ChatBot() {
                 <button
                     onClick={() => setIsOpen(true)}
                     className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all z-50 group hover:scale-110 animate-pulse"
+                    title="FAQ Help Center - Get instant answers"
+                    aria-label="Open FAQ Help Center"
                 >
                     <ChatBubbleLeftRightIcon className="h-7 w-7" />
                     <span className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg">
-                        <SparklesIcon className="h-4 w-4" />
+                        <QuestionMarkCircleIcon className="h-4 w-4" />
                     </span>
                 </button>
             )}
@@ -501,13 +502,13 @@ export default function ChatBot() {
                     <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white p-5 flex items-center justify-between">
                         <div className="flex items-center">
                             <div className="bg-white/20 backdrop-blur-sm p-2 rounded-full mr-3">
-                                <SparklesIcon className="h-6 w-6" />
+                                <QuestionMarkCircleIcon className="h-6 w-6" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-lg">ODEC AI Assistant</h3>
+                                <h3 className="font-bold text-lg">FAQ Help Center</h3>
                                 <p className="text-xs text-purple-100 flex items-center">
                                     <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
-                                    Online • Always ready to help
+                                    Online • Get instant answers
                                 </p>
                             </div>
                         </div>
@@ -630,7 +631,7 @@ export default function ChatBot() {
                             </button>
                         </div>
                         <p className="text-xs text-gray-400 mt-2 text-center">
-                            Powered by AI • Instant responses
+                            FAQ Support • Instant answers to common questions
                         </p>
                     </form>
                 </div>
