@@ -180,7 +180,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 </div>
 
                 {/* Main content */}
-                <div className="lg:pl-64 flex flex-col min-h-screen">
+                <div className="lg:pl-64">
                     {/* Top bar for mobile */}
                     <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm lg:hidden">
                         <button
@@ -196,12 +196,9 @@ export default function AuthenticatedLayout({ header, children }) {
                         <UserCircleIcon className="h-8 w-8 text-orange-600" />
                     </div>
 
-                    <main className="flex-grow bg-gray-50">
+                    <main className="bg-gray-50">
                         {children}
                     </main>
-
-                    {/* Footer */}
-                    <Footer />
                 </div>
             </div>
         );
