@@ -25,7 +25,7 @@ class AnnouncementController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'message' => 'required|string',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:12288',
             'photo_url' => 'nullable|url',
             'is_active' => 'boolean',
             'expires_at' => 'nullable|date|after:now',
@@ -34,6 +34,7 @@ class AnnouncementController extends Controller
         $photoPath = null;
         if ($request->hasFile('photo')) {
             $photoPath = $request->file('photo')->store('announcements', 'public');
+            $photoPath = '/storage/' . $photoPath;
         } elseif (!empty($validated['photo_url'])) {
             $photoPath = $validated['photo_url'];
         }
@@ -55,7 +56,7 @@ class AnnouncementController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'message' => 'required|string',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:12288',
             'photo_url' => 'nullable|url',
             'is_active' => 'boolean',
             'expires_at' => 'nullable|date',
@@ -71,13 +72,16 @@ class AnnouncementController extends Controller
         if ($request->hasFile('photo')) {
             // Delete old photo if exists and is not a URL
             if ($announcement->photo_path && !str_starts_with($announcement->photo_path, 'http')) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($announcement->photo_path);
+                $oldPath = str_replace('/storage/', '', $announcement->photo_path);
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
             }
-            $updateData['photo_path'] = $request->file('photo')->store('announcements', 'public');
+            $photoPath = $request->file('photo')->store('announcements', 'public');
+            $updateData['photo_path'] = '/storage/' . $photoPath;
         } elseif (!empty($validated['photo_url'])) {
             // Delete old photo if exists and is not a URL
             if ($announcement->photo_path && !str_starts_with($announcement->photo_path, 'http')) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($announcement->photo_path);
+                $oldPath = str_replace('/storage/', '', $announcement->photo_path);
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
             }
             $updateData['photo_path'] = $validated['photo_url'];
         }
@@ -91,7 +95,8 @@ class AnnouncementController extends Controller
     {
         // Delete photo if exists and is not a URL
         if ($announcement->photo_path && !str_starts_with($announcement->photo_path, 'http')) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($announcement->photo_path);
+            $oldPath = str_replace('/storage/', '', $announcement->photo_path);
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
         }
 
         $announcement->delete();
