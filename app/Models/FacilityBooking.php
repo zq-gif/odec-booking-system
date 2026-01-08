@@ -34,6 +34,7 @@ class FacilityBooking extends Model
         'confirmed_at',
         'cancelled_at',
         'cancellation_reason',
+        'special_requests',
     ];
 
     protected $casts = [

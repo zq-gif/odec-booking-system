@@ -23,6 +23,9 @@ class ActivityBooking extends Model
         'payment_verified_at',
         'payment_verified_by',
         'payment_verification_notes',
+        'cancelled_at',
+        'cancellation_reason',
+        'special_requests',
     ];
 
     protected $casts = [
@@ -30,6 +33,7 @@ class ActivityBooking extends Model
         'total_amount' => 'decimal:2',
         'payment_verified' => 'boolean',
         'payment_verified_at' => 'datetime',
+        'cancelled_at' => 'datetime',
     ];
 
     public function user()

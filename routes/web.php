@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\FacilityBookingController;
 use App\Http\Controllers\ActivityBookingController;
+use App\Http\Controllers\BookingActionController;
 use App\Http\Controllers\VRTourController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AdminFacilityController;
@@ -220,6 +221,15 @@ Route::get('/my-bookings', function () {
         'bookings' => $allBookings
     ]);
 })->middleware(['auth', 'verified'])->name('my-bookings');
+
+// User Booking Actions (Cancel and Modify)
+Route::post('/bookings/{id}/cancel', [BookingActionController::class, 'cancel'])
+    ->middleware(['auth', 'verified'])
+    ->name('bookings.cancel');
+
+Route::post('/bookings/{id}/request-modification', [BookingActionController::class, 'requestModification'])
+    ->middleware(['auth', 'verified'])
+    ->name('bookings.request-modification');
 
 Route::get('/report-issue', function () {
     return Inertia::render('ReportIssue');
