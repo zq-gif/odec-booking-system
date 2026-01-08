@@ -598,7 +598,7 @@ export default function ChatBot() {
                             <div className="flex justify-start">
                                 <div className="bg-white text-gray-800 shadow-md border border-purple-100 rounded-2xl px-5 py-3">
                                     <div className="flex space-x-2 items-center">
-                                        <SparklesIcon className="h-4 w-4 text-purple-600 animate-spin" />
+                                        <ArrowPathIcon className="h-4 w-4 text-purple-600 animate-spin" />
                                         <div className="flex space-x-1">
                                             <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
                                             <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
