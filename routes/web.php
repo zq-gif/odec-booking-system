@@ -284,6 +284,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Announcement Management
     Route::resource('announcements', AnnouncementController::class)->except(['create', 'edit', 'show']);
+    Route::post('announcements/{announcement}', [AnnouncementController::class, 'update'])->name('announcements.update.post');
     Route::patch('announcements/{announcement}/toggle', [AnnouncementController::class, 'toggleStatus'])->name('announcements.toggle');
 
     // Reports
