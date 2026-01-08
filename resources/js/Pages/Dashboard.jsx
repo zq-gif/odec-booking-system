@@ -109,7 +109,7 @@ export default function Dashboard({ auth }) {
         <AuthenticatedLayout>
             <Head title="Dashboard" />
 
-            <div className="min-h-screen">
+            <div>
                 {/* Hero Header with Photo */}
                 <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
                     {/* Background Image */}

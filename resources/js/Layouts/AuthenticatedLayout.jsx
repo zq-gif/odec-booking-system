@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState, Fragment } from 'react';
 import ChatBot from '@/Components/ChatBot';
+import Footer from '@/Components/Footer';
 import {
     HomeIcon,
     BuildingOfficeIcon,
@@ -179,7 +180,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 </div>
 
                 {/* Main content */}
-                <div className="lg:pl-64">
+                <div className="lg:pl-64 flex flex-col min-h-screen">
                     {/* Top bar for mobile */}
                     <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm lg:hidden">
                         <button
@@ -195,9 +196,12 @@ export default function AuthenticatedLayout({ header, children }) {
                         <UserCircleIcon className="h-8 w-8 text-orange-600" />
                     </div>
 
-                    <main className="min-h-screen bg-gray-50">
+                    <main className="flex-grow bg-gray-50">
                         {children}
                     </main>
+
+                    {/* Footer */}
+                    <Footer />
                 </div>
             </div>
         );
@@ -205,7 +209,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
     // User Layout (Top Navigation)
     return (
-        <div className="min-h-screen bg-gradient-to-br from-sky-50 via-orange-50 to-amber-50">
+        <div className="flex flex-col min-h-screen bg-gradient-to-br from-sky-50 via-orange-50 to-amber-50">
             {/* Top Navigation Bar */}
             <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-md border-b border-orange-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -347,12 +351,15 @@ export default function AuthenticatedLayout({ header, children }) {
             </nav>
 
             {/* Main content with header spacing */}
-            <main className="pt-16">
+            <main className="flex-grow pt-16">
                 {children}
             </main>
 
             {/* AI ChatBot for FAQ */}
             <ChatBot />
+
+            {/* Footer */}
+            <Footer />
         </div>
     );
 }
