@@ -13,7 +13,8 @@ import {
     MagnifyingGlassIcon,
     FunnelIcon,
     DocumentTextIcon,
-    XMarkIcon
+    XMarkIcon,
+    ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 
 export default function Bookings({ auth, bookings }) {
@@ -58,6 +59,16 @@ export default function Bookings({ auth, bookings }) {
             paymentMethod: booking.payment_method
         });
         setShowReceiptModal(true);
+    };
+
+    const handleDownloadReceipt = (receiptUrl, bookingRef) => {
+        // Create a temporary anchor element to trigger download
+        const link = document.createElement('a');
+        link.href = `/storage/${receiptUrl}`;
+        link.download = `receipt_${bookingRef}.${receiptUrl.split('.').pop()}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     const getStatusBadge = (status) => {
@@ -459,14 +470,23 @@ export default function Bookings({ auth, bookings }) {
                                     Close
                                 </button>
                                 {selectedReceipt.receiptUrl && (
-                                    <a
-                                        href={`/storage/${selectedReceipt.receiptUrl}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-                                    >
-                                        Open in New Tab
-                                    </a>
+                                    <>
+                                        <button
+                                            onClick={() => handleDownloadReceipt(selectedReceipt.receiptUrl, selectedReceipt.bookingRef)}
+                                            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                                        >
+                                            <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+                                            Download
+                                        </button>
+                                        <a
+                                            href={`/storage/${selectedReceipt.receiptUrl}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                                        >
+                                            Open in New Tab
+                                        </a>
+                                    </>
                                 )}
                             </div>
                         </div>
