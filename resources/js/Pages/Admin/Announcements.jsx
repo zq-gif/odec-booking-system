@@ -72,20 +72,41 @@ export default function Announcements({ auth, announcements }) {
 
     const handleCreate = (e) => {
         e.preventDefault();
+        console.log('Creating announcement with data:', createForm.data);
+        console.log('Photo file:', createForm.data.photo);
         createForm.post(route('admin.announcements.store'), {
+            forceFormData: true,
+            onBefore: () => {
+                console.log('Before submit - form data:', createForm.data);
+            },
             onSuccess: () => {
+                console.log('Announcement created successfully');
                 setShowCreateModal(false);
                 createForm.reset();
+            },
+            onError: (errors) => {
+                console.error('Error creating announcement:', errors);
             }
         });
     };
 
     const handleEdit = (e) => {
         e.preventDefault();
-        editForm.patch(route('admin.announcements.update', selectedAnnouncement.id), {
+        console.log('Editing announcement with data:', editForm.data);
+        console.log('Photo file:', editForm.data.photo);
+        editForm.post(route('admin.announcements.update', selectedAnnouncement.id), {
+            forceFormData: true,
+            _method: 'patch',
+            onBefore: () => {
+                console.log('Before submit - form data:', editForm.data);
+            },
             onSuccess: () => {
+                console.log('Announcement updated successfully');
                 setShowEditModal(false);
                 editForm.reset();
+            },
+            onError: (errors) => {
+                console.error('Error updating announcement:', errors);
             }
         });
     };
@@ -194,7 +215,13 @@ export default function Announcements({ auth, announcements }) {
                                                     <td className="px-6 py-4">
                                                         {announcement.photo_path ? (
                                                             <img
-                                                                src={announcement.photo_path.startsWith('http') ? announcement.photo_path : `/storage/${announcement.photo_path}`}
+                                                                src={
+                                                                    announcement.photo_path.startsWith('http')
+                                                                        ? announcement.photo_path // Cloudinary or external URL
+                                                                        : announcement.photo_path.startsWith('/storage/')
+                                                                            ? announcement.photo_path // Old format with /storage/
+                                                                            : `/storage/${announcement.photo_path}` // New local storage format
+                                                                }
                                                                 alt="Announcement"
                                                                 className="h-12 w-12 rounded object-cover"
                                                             />
@@ -355,6 +382,16 @@ export default function Announcements({ auth, announcements }) {
                                     <label className="text-sm font-medium">Active</label>
                                 </div>
                             </div>
+                            {createForm.errors && Object.keys(createForm.errors).length > 0 && (
+                                <div className="mt-4 rounded bg-red-50 border border-red-200 p-3">
+                                    <p className="text-sm font-semibold text-red-800 mb-1">Errors:</p>
+                                    <ul className="list-disc list-inside text-sm text-red-700">
+                                        {Object.entries(createForm.errors).map(([key, value]) => (
+                                            <li key={key}>{value}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                             <div className="mt-6 flex justify-end gap-3">
                                 <button
                                     type="button"
@@ -366,9 +403,9 @@ export default function Announcements({ auth, announcements }) {
                                 <button
                                     type="submit"
                                     disabled={createForm.processing}
-                                    className="rounded bg-orange-600 px-4 py-2 text-white hover:bg-orange-700"
+                                    className="rounded bg-orange-600 px-4 py-2 text-white hover:bg-orange-700 disabled:opacity-50"
                                 >
-                                    Create
+                                    {createForm.processing ? 'Creating...' : 'Create'}
                                 </button>
                             </div>
                         </form>
@@ -413,7 +450,13 @@ export default function Announcements({ auth, announcements }) {
                                     {selectedAnnouncement?.photo_path && (
                                         <div className="mb-2">
                                             <img
-                                                src={selectedAnnouncement.photo_path.startsWith('http') ? selectedAnnouncement.photo_path : `/storage/${selectedAnnouncement.photo_path}`}
+                                                src={
+                                                    selectedAnnouncement.photo_path.startsWith('http')
+                                                        ? selectedAnnouncement.photo_path // Cloudinary or external URL
+                                                        : selectedAnnouncement.photo_path.startsWith('/storage/')
+                                                            ? selectedAnnouncement.photo_path // Old format with /storage/
+                                                            : `/storage/${selectedAnnouncement.photo_path}` // New local storage format
+                                                }
                                                 alt="Current"
                                                 className="h-24 w-24 rounded object-cover"
                                             />
@@ -490,6 +533,16 @@ export default function Announcements({ auth, announcements }) {
                                     <label className="text-sm font-medium">Active</label>
                                 </div>
                             </div>
+                            {editForm.errors && Object.keys(editForm.errors).length > 0 && (
+                                <div className="mt-4 rounded bg-red-50 border border-red-200 p-3">
+                                    <p className="text-sm font-semibold text-red-800 mb-1">Errors:</p>
+                                    <ul className="list-disc list-inside text-sm text-red-700">
+                                        {Object.entries(editForm.errors).map(([key, value]) => (
+                                            <li key={key}>{value}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                             <div className="mt-6 flex justify-end gap-3">
                                 <button
                                     type="button"
@@ -501,9 +554,9 @@ export default function Announcements({ auth, announcements }) {
                                 <button
                                     type="submit"
                                     disabled={editForm.processing}
-                                    className="rounded bg-orange-600 px-4 py-2 text-white hover:bg-orange-700"
+                                    className="rounded bg-orange-600 px-4 py-2 text-white hover:bg-orange-700 disabled:opacity-50"
                                 >
-                                    Update
+                                    {editForm.processing ? 'Updating...' : 'Update'}
                                 </button>
                             </div>
                         </form>

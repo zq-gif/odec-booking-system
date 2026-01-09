@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import EquipmentSelector from '@/Components/EquipmentSelector';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -30,7 +31,8 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
         attendees: '',
         purpose: '',
         paymentMethod: '',
-        receiptFile: null
+        receiptFile: null,
+        equipment: []
     });
 
     // Generate time slots based on facility's slot_duration
@@ -65,15 +67,21 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
     const fetchBookedSlots = async () => {
         setLoadingSlots(true);
         try {
+            console.log('Fetching booked slots for:', {
+                facility_id: bookingData.facility.id,
+                date: bookingData.date
+            });
             const response = await axios.get('/api/facility-bookings/booked-slots', {
                 params: {
                     facility_id: bookingData.facility.id,
                     date: bookingData.date
                 }
             });
+            console.log('Booked slots received:', response.data);
             setBookedSlots(response.data);
         } catch (error) {
             console.error('Error fetching booked slots:', error);
+            console.error('Error response:', error.response?.data);
         }
         setLoadingSlots(false);
     };
@@ -110,6 +118,17 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
         return (parseFloat(bookingData.facility.price_per_hour) * durationHours).toFixed(2);
     };
 
+    const calculateDeposit = () => {
+        const total = calculateTotal();
+        return (parseFloat(total) * 0.1).toFixed(2);
+    };
+
+    const calculateRemainingBalance = () => {
+        const total = calculateTotal();
+        const deposit = calculateDeposit();
+        return (parseFloat(total) - parseFloat(deposit)).toFixed(2);
+    };
+
     const handlePrint = () => {
         window.print();
     };
@@ -138,6 +157,14 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
             formData.append('purpose', bookingData.purpose);
             formData.append('phone_number', bookingData.phone);
             formData.append('payment_method', bookingData.paymentMethod);
+
+            // Add equipment if selected
+            if (bookingData.equipment && bookingData.equipment.length > 0) {
+                bookingData.equipment.forEach((item, index) => {
+                    formData.append(`equipment[${index}][id]`, item.id);
+                    formData.append(`equipment[${index}][quantity]`, item.quantity);
+                });
+            }
 
             // Add receipt file if provided
             if (bookingData.receiptFile) {
@@ -332,50 +359,60 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
                         {currentStep === 3 && (
                             <div>
                                 <h2 className="text-lg font-semibold text-gray-900 mb-6">Enter Booking Details</h2>
-                                <div className="max-w-md mx-auto space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                                        <input
-                                            type="text"
-                                            value={bookingData.name}
-                                            onChange={(e) => setBookingData({ ...bookingData, name: e.target.value })}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
+                                <div className="max-w-2xl mx-auto space-y-6">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                                            <input
+                                                type="text"
+                                                value={bookingData.name}
+                                                onChange={(e) => setBookingData({ ...bookingData, name: e.target.value })}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                            <input
+                                                type="email"
+                                                value={bookingData.email}
+                                                onChange={(e) => setBookingData({ ...bookingData, email: e.target.value })}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                                            <input
+                                                type="tel"
+                                                value={bookingData.phone}
+                                                onChange={(e) => setBookingData({ ...bookingData, phone: e.target.value })}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Number of Attendees</label>
+                                            <input
+                                                type="number"
+                                                value={bookingData.attendees}
+                                                onChange={(e) => setBookingData({ ...bookingData, attendees: e.target.value })}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Purpose of Booking</label>
+                                            <textarea
+                                                value={bookingData.purpose}
+                                                onChange={(e) => setBookingData({ ...bookingData, purpose: e.target.value })}
+                                                rows={3}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                        <input
-                                            type="email"
-                                            value={bookingData.email}
-                                            onChange={(e) => setBookingData({ ...bookingData, email: e.target.value })}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                                        <input
-                                            type="tel"
-                                            value={bookingData.phone}
-                                            onChange={(e) => setBookingData({ ...bookingData, phone: e.target.value })}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Number of Attendees</label>
-                                        <input
-                                            type="number"
-                                            value={bookingData.attendees}
-                                            onChange={(e) => setBookingData({ ...bookingData, attendees: e.target.value })}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Purpose of Booking</label>
-                                        <textarea
-                                            value={bookingData.purpose}
-                                            onChange={(e) => setBookingData({ ...bookingData, purpose: e.target.value })}
-                                            rows={3}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+
+                                    {/* Equipment Selector */}
+                                    <div className="border-t border-gray-200 pt-6">
+                                        <EquipmentSelector
+                                            selectedEquipment={bookingData.equipment}
+                                            onEquipmentChange={(equipment) => setBookingData({ ...bookingData, equipment })}
                                         />
                                     </div>
                                 </div>
@@ -404,12 +441,28 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
                                             </div>
                                             <div className="flex justify-between">
                                                 <span>Duration:</span>
-                                                <span className="font-medium">4 hours</span>
+                                                <span className="font-medium">{bookingData.facility?.slot_duration || 4} hours</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Rate:</span>
+                                                <span className="font-medium">${bookingData.facility?.price_per_hour}/hour</span>
                                             </div>
                                             <div className="flex justify-between pt-2 border-t border-gray-300">
-                                                <span className="font-semibold">Total:</span>
+                                                <span className="font-semibold">Total Amount:</span>
                                                 <span className="font-bold text-blue-600">${calculateTotal()}</span>
                                             </div>
+                                            {bookingData.paymentMethod === 'cash' && (
+                                                <>
+                                                    <div className="flex justify-between text-sm pt-2">
+                                                        <span className="text-amber-700">Deposit Required (10%):</span>
+                                                        <span className="font-semibold text-amber-700">${calculateDeposit()}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-gray-600">Pay on Arrival:</span>
+                                                        <span className="font-medium text-gray-600">${calculateRemainingBalance()}</span>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
 
@@ -445,10 +498,8 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
                                     {(bookingData.paymentMethod === 'cash' || bookingData.paymentMethod === 'bank_transfer') && (
                                         <div className="mt-4">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Upload Payment Receipt
-                                                {bookingData.paymentMethod === 'cash' && (
-                                                    <span className="text-amber-600 ml-1">(10% Deposit Receipt)</span>
-                                                )}
+                                                Upload Payment Receipt <span className="text-red-600">*</span>
+                                                <span className="text-amber-600 ml-1">(10% Deposit Receipt Required)</span>
                                             </label>
                                             <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors">
                                                 <div className="space-y-1 text-center">
@@ -513,10 +564,10 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
                                                 <div className="mt-2 space-y-3">
                                                     <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                                                         <p className="text-xs text-blue-800">
-                                                            <strong>Bank Details for Full Payment:</strong><br />
+                                                            <strong>Bank Details for Deposit Transfer:</strong><br />
                                                             Maybank - ODEC UMS Beach Club<br />
                                                             Account: 1234567890<br />
-                                                            Amount: ${calculateTotal()}
+                                                            Amount: ${calculateDeposit()} (10% deposit)
                                                         </p>
                                                     </div>
                                                     {paymentQrCode && (
@@ -569,17 +620,40 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
                                             padding-bottom: 20px;
                                             border-bottom: 2px solid #000;
                                         }
+                                        .security-watermark {
+                                            display: block !important;
+                                        }
+                                        .security-border {
+                                            border: 3px double #000 !important;
+                                            padding: 20px !important;
+                                        }
                                     }
                                     .print-header {
                                         display: none;
                                     }
+                                    .security-watermark {
+                                        display: none;
+                                        position: fixed;
+                                        top: 50%;
+                                        left: 50%;
+                                        transform: translate(-50%, -50%) rotate(-45deg);
+                                        font-size: 120px;
+                                        font-weight: bold;
+                                        color: rgba(0, 0, 0, 0.05);
+                                        z-index: -1;
+                                        pointer-events: none;
+                                        white-space: nowrap;
+                                    }
                                 `}</style>
+                                <div className="security-watermark">OFFICIAL RECEIPT</div>
                                 <div className="py-8 printable-area">
                                     <div className="max-w-2xl mx-auto">
                                         {/* Print Header (only visible when printing) */}
                                         <div className="print-header text-center">
-                                            <h1 className="text-3xl font-bold text-gray-900">ODEC Booking System</h1>
-                                            <p className="text-gray-600 mt-2">Facility Booking Confirmation</p>
+                                            <h1 className="text-3xl font-bold text-gray-900">ODEC UMS BEACH CLUB</h1>
+                                            <p className="text-gray-600 mt-1">Official Booking System</p>
+                                            <p className="text-sm text-gray-500 mt-1">Facility Booking Confirmation</p>
+                                            <p className="text-xs text-gray-400 mt-2">Issued: {new Date().toLocaleString('en-MY', { timeZone: 'Asia/Kuala_Lumpur', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                                         </div>
 
                                         {/* Success Icon and Message */}
@@ -603,13 +677,19 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
                                         </div>
 
                                         {/* Booking Details Card */}
-                                        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-                                            {/* Reference Number */}
-                                            <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-                                                <h3 className="text-lg font-semibold text-gray-900">Booking Details</h3>
-                                                <span className="text-sm text-gray-600">
-                                                    Reference: <span className="font-semibold text-gray-900">{referenceNumber}</span>
-                                                </span>
+                                        <div className="bg-white border-2 border-gray-300 rounded-lg p-6 mb-6 security-border">
+                                            {/* Security Header */}
+                                            <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 -m-6 mb-6 rounded-t-lg">
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <p className="text-xs uppercase tracking-wide opacity-90">Official Document</p>
+                                                        <h3 className="text-xl font-bold mt-1">Booking Confirmation</h3>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-xs opacity-90">Reference No.</p>
+                                                        <p className="text-lg font-mono font-bold tracking-wider">{referenceNumber}</p>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                         {/* Details with Icons */}
@@ -650,18 +730,63 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
                                         {/* Payment Information */}
                                         <div className="pt-4 border-t border-gray-200">
                                             <div className="flex justify-between items-center mb-2">
+                                                <span className="text-sm text-gray-600">Duration</span>
+                                                <span className="font-medium text-gray-900">{bookingData.facility?.slot_duration || 4} hours</span>
+                                            </div>
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-sm text-gray-600">Rate</span>
+                                                <span className="font-medium text-gray-900">${bookingData.facility?.price_per_hour}/hour</span>
+                                            </div>
+                                            <div className="flex justify-between items-center mb-2">
                                                 <span className="text-sm text-gray-600">Payment Method</span>
                                                 <span className="font-medium text-gray-900">
                                                     {bookingData.paymentMethod === 'credit_card' && 'Credit Card'}
-                                                    {bookingData.paymentMethod === 'cash' && 'Cash on Arrival'}
-                                                    {bookingData.paymentMethod === 'bank_transfer' && 'Bank Transfer'}
+                                                    {bookingData.paymentMethod === 'cash' && 'Cash on Arrival (10% Deposit)'}
+                                                    {bookingData.paymentMethod === 'bank_transfer' && 'Bank Transfer (10% Deposit)'}
                                                 </span>
                                             </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-sm font-semibold text-gray-900">Amount Paid</span>
-                                                <span className="font-bold text-lg text-green-600">${calculateTotal()}</span>
+                                            <div className="flex justify-between items-center pt-2 border-t border-gray-300">
+                                                <span className="text-sm font-semibold text-gray-900">Total Booking Amount</span>
+                                                <span className="font-semibold text-gray-900">${calculateTotal()}</span>
                                             </div>
+                                            {(bookingData.paymentMethod === 'cash' || bookingData.paymentMethod === 'bank_transfer') && (
+                                                <>
+                                                    <div className="flex justify-between items-center pt-2">
+                                                        <span className="text-sm font-bold text-amber-700">Amount Paid (10% Deposit)</span>
+                                                        <span className="font-bold text-lg text-amber-700">${calculateDeposit()}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-sm text-gray-600">Balance Due at Check-in</span>
+                                                        <span className="font-semibold text-gray-900">${calculateRemainingBalance()}</span>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
+
+                                            {/* Security Footer */}
+                                            <div className="mt-6 pt-4 border-t-2 border-dashed border-gray-300">
+                                                <div className="bg-gray-50 p-4 rounded-lg">
+                                                    <p className="text-xs font-semibold text-gray-700 mb-2">VERIFICATION INFORMATION</p>
+                                                    <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                                                        <div>
+                                                            <span className="font-medium">Document ID:</span> {referenceNumber}
+                                                        </div>
+                                                        <div>
+                                                            <span className="font-medium">Issue Date:</span> {new Date().toLocaleDateString('en-MY')}
+                                                        </div>
+                                                        <div className="col-span-2">
+                                                            <span className="font-medium">Verification:</span> This is an official booking confirmation from ODEC UMS Beach Club
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded">
+                                                    <p className="text-xs text-amber-900">
+                                                        <span className="font-bold">⚠ IMPORTANT:</span> This document is for verification purposes only.
+                                                        Please present this confirmation along with valid identification upon arrival.
+                                                        Any alterations to this document will render it invalid.
+                                                    </p>
+                                                </div>
+                                            </div>
                                     </div>
 
                                     {/* Email Confirmation Message */}
@@ -669,7 +794,117 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
                                         <p className="text-sm text-gray-600">
                                             A confirmation email has been sent to <span className="font-medium text-gray-900">{bookingData.email}</span> with all the booking details.
                                         </p>
+                                        <p className="text-xs text-gray-500 mt-2">
+                                            For verification inquiries, contact ODEC UMS Beach Club with reference number: <span className="font-mono font-semibold">{referenceNumber}</span>
+                                        </p>
                                     </div>
+
+                                    {/* Payment Instructions */}
+                                    {bookingData.paymentMethod === 'cash' && (
+                                        <div className="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-lg mb-6">
+                                            <div className="flex items-start">
+                                                <div className="flex-shrink-0">
+                                                    <svg className="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </div>
+                                                <div className="ml-3 flex-1">
+                                                    <h3 className="text-base font-semibold text-amber-900 mb-2">Cash on Arrival - Payment Instructions</h3>
+                                                    <div className="text-sm text-amber-800 space-y-3">
+                                                        <div className="bg-white p-4 rounded-lg border border-amber-200">
+                                                            <p className="font-semibold text-amber-900 mb-2">Payment Breakdown:</p>
+                                                            <div className="space-y-1.5">
+                                                                <div className="flex justify-between">
+                                                                    <span>Total Amount:</span>
+                                                                    <span className="font-semibold">${calculateTotal()}</span>
+                                                                </div>
+                                                                <div className="flex justify-between text-amber-700 bg-amber-50 p-2 rounded">
+                                                                    <span className="font-semibold">Deposit Required (10%):</span>
+                                                                    <span className="font-bold">${calculateDeposit()}</span>
+                                                                </div>
+                                                                <div className="flex justify-between">
+                                                                    <span>Remaining Balance:</span>
+                                                                    <span className="font-semibold">${calculateRemainingBalance()}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <p className="font-medium">Please follow these steps:</p>
+                                                        <ol className="list-decimal list-inside space-y-2 ml-2">
+                                                            <li>
+                                                                <span className="font-semibold">Pay Deposit:</span> Transfer the 10% deposit (<span className="font-bold">${calculateDeposit()}</span>) to secure your booking
+                                                                <div className="ml-6 mt-1 text-xs bg-blue-50 p-2 rounded border border-blue-200">
+                                                                    <p className="font-semibold text-blue-900">Bank Details:</p>
+                                                                    <p>Maybank - ODEC UMS Beach Club</p>
+                                                                    <p>Account: 1234567890</p>
+                                                                    <p>Reference: {referenceNumber}</p>
+                                                                </div>
+                                                            </li>
+                                                            <li>Arrive at ODEC UMS Beach Club on your booking date</li>
+                                                            <li>Present your booking reference number: <span className="font-bold">{referenceNumber}</span></li>
+                                                            <li>Pay the remaining balance of <span className="font-bold">${calculateRemainingBalance()}</span> at the reception desk</li>
+                                                            <li>Collect your receipt and enjoy your facility!</li>
+                                                        </ol>
+                                                        <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mt-3">
+                                                            <p className="text-xs font-semibold text-yellow-900 mb-1">⚠️ Important:</p>
+                                                            <ul className="text-xs text-yellow-800 space-y-1 ml-4 list-disc">
+                                                                <li>Deposit must be paid within 24 hours to confirm your booking</li>
+                                                                <li>Receipt has been uploaded with your booking</li>
+                                                                <li>Please arrive at least 15 minutes before your scheduled time</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {bookingData.paymentMethod === 'bank_transfer' && (
+                                        <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg mb-6">
+                                            <div className="flex items-start">
+                                                <div className="flex-shrink-0">
+                                                    <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                                    </svg>
+                                                </div>
+                                                <div className="ml-3 flex-1">
+                                                    <h3 className="text-base font-semibold text-blue-900 mb-2">Bank Transfer - Payment Instructions</h3>
+                                                    <div className="text-sm text-blue-800 space-y-3">
+                                                        <p className="font-medium">Please transfer the deposit amount to:</p>
+                                                        <div className="bg-white p-4 rounded-lg border border-blue-200 space-y-2">
+                                                            <div className="flex justify-between">
+                                                                <span className="text-gray-600">Bank Name:</span>
+                                                                <span className="font-semibold">Maybank</span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span className="text-gray-600">Account Name:</span>
+                                                                <span className="font-semibold">ODEC UMS Beach Club</span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span className="text-gray-600">Account Number:</span>
+                                                                <span className="font-semibold">1234567890</span>
+                                                            </div>
+                                                            <div className="flex justify-between border-t pt-2">
+                                                                <span className="text-gray-600">Deposit Amount (10%):</span>
+                                                                <span className="font-bold text-lg text-blue-600">${calculateDeposit()}</span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span className="text-gray-600">Reference:</span>
+                                                                <span className="font-semibold">{referenceNumber}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+                                                            <p className="text-xs font-semibold text-yellow-900 mb-1">⚠️ Important:</p>
+                                                            <ul className="text-xs text-yellow-800 space-y-1 ml-4 list-disc">
+                                                                <li>Include your booking reference number <span className="font-bold">{referenceNumber}</span> in the transfer description</li>
+                                                                <li>Receipt has been uploaded with your booking</li>
+                                                                <li>Pay remaining balance of <span className="font-bold">${calculateRemainingBalance()}</span> at check-in</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {/* Action Buttons */}
                                     <div className="flex gap-4 justify-center no-print">
@@ -706,7 +941,8 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
                                     disabled={
                                         (currentStep === 2 && (!bookingData.date || !bookingData.time)) ||
                                         (currentStep === 3 && (!bookingData.phone || !bookingData.attendees || !bookingData.purpose)) ||
-                                        (currentStep === 4 && !bookingData.paymentMethod)
+                                        (currentStep === 4 && (!bookingData.paymentMethod ||
+                                            ((bookingData.paymentMethod === 'cash' || bookingData.paymentMethod === 'bank_transfer') && !bookingData.receiptFile)))
                                     }
                                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\FacilityBooking;
 use App\Models\Facility;
+use App\Models\Equipment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class FacilityBookingController extends Controller
 {
@@ -28,10 +30,14 @@ class FacilityBookingController extends Controller
             ],
             'purpose' => 'required|string',
             'phone_number' => 'nullable|string',
-            'payment_method' => 'nullable|string|in:cash,bank_transfer',
-            'payment_receipt' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'payment_method' => 'required|string|in:cash,bank_transfer',
+            'payment_receipt' => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'equipment' => 'nullable|array',
+            'equipment.*.id' => 'required|exists:equipment,id',
+            'equipment.*.quantity' => 'required|integer|min:1',
         ], [
             'number_of_guests.max' => 'The number of guests cannot exceed the facility capacity of ' . $facility->capacity . '.',
+            'payment_receipt.required' => 'Payment receipt is required. Please upload your deposit or full payment receipt.',
         ]);
 
         // Generate unique reference number
@@ -40,39 +46,74 @@ class FacilityBookingController extends Controller
         // Calculate amounts
         $pricePerHour = $facility->price_per_hour;
         $totalAmount = $pricePerHour * $validated['duration_hours'];
+
+        // Calculate equipment cost
+        $equipmentTotal = 0;
+        if ($request->has('equipment') && is_array($request->equipment)) {
+            foreach ($request->equipment as $item) {
+                $equipment = Equipment::find($item['id']);
+                if ($equipment) {
+                    $equipmentTotal += $equipment->price_per_unit * $item['quantity'];
+                }
+            }
+        }
+
         $discount = 0;
-        $finalAmount = $totalAmount - $discount;
+        $finalAmount = $totalAmount + $equipmentTotal - $discount;
 
         // Handle file upload
         $receiptPath = null;
         if ($request->hasFile('payment_receipt')) {
             $file = $request->file('payment_receipt');
             $filename = $referenceNumber . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $receiptPath = $file->storeAs('payment_receipts', $filename, 'public');
+            $disk = config('filesystems.default') === 'cloudinary' ? 'cloudinary' : 'public';
+            $receiptPath = $file->storeAs('payment_receipts', $filename, $disk);
         }
 
         // Create booking
-        $booking = FacilityBooking::create([
-            'user_id' => auth()->id(),
-            'facility_id' => $validated['facility_id'],
-            'reference_number' => $referenceNumber,
-            'booking_date' => $validated['booking_date'],
-            'start_time' => $validated['start_time'],
-            'end_time' => $validated['end_time'],
-            'duration_hours' => $validated['duration_hours'],
-            'number_of_guests' => $validated['number_of_guests'],
-            'number_of_attendees' => $validated['number_of_guests'],
-            'phone_number' => $validated['phone_number'] ?? null,
-            'price_per_hour' => $pricePerHour,
-            'total_amount' => $totalAmount,
-            'discount' => $discount,
-            'final_amount' => $finalAmount,
-            'purpose' => $validated['purpose'],
-            'status' => 'pending',
-            'payment_status' => 'unpaid',
-            'payment_method' => $request->payment_method,
-            'payment_receipt' => $receiptPath,
-        ]);
+        $booking = DB::transaction(function () use ($validated, $referenceNumber, $pricePerHour, $totalAmount, $discount, $finalAmount, $receiptPath, $request) {
+            $booking = FacilityBooking::create([
+                'user_id' => auth()->id(),
+                'facility_id' => $validated['facility_id'],
+                'reference_number' => $referenceNumber,
+                'booking_date' => $validated['booking_date'],
+                'start_time' => $validated['start_time'],
+                'end_time' => $validated['end_time'],
+                'duration_hours' => $validated['duration_hours'],
+                'number_of_guests' => $validated['number_of_guests'],
+                'number_of_attendees' => $validated['number_of_guests'],
+                'phone_number' => $validated['phone_number'] ?? null,
+                'price_per_hour' => $pricePerHour,
+                'total_amount' => $totalAmount,
+                'discount' => $discount,
+                'final_amount' => $finalAmount,
+                'purpose' => $validated['purpose'],
+                'status' => 'pending',
+                'payment_status' => 'unpaid',
+                'payment_method' => $request->payment_method,
+                'payment_receipt' => $receiptPath,
+            ]);
+
+            // Attach equipment to booking
+            if ($request->has('equipment') && is_array($request->equipment)) {
+                foreach ($request->equipment as $item) {
+                    $equipment = Equipment::find($item['id']);
+                    if ($equipment) {
+                        DB::table('booking_equipment')->insert([
+                            'booking_type' => 'facility',
+                            'booking_id' => $booking->id,
+                            'equipment_id' => $equipment->id,
+                            'quantity' => $item['quantity'],
+                            'price' => $equipment->price_per_unit * $item['quantity'],
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+            }
+
+            return $booking;
+        });
 
         // Return JSON response for AJAX/Inertia requests
         return response()->json([

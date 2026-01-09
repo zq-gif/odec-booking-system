@@ -10,8 +10,9 @@ import {
     ExclamationTriangleIcon,
     ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-export default function AdminDashboard({ auth, stats, recentActivity }) {
+export default function AdminDashboard({ auth, stats, recentActivity, charts }) {
     const displayStats = [
         {
             title: 'Total Users',
@@ -193,6 +194,76 @@ export default function AdminDashboard({ auth, stats, recentActivity }) {
                                 ))}
                             </div>
                         </div>
+
+                        {/* Charts Section */}
+                        {charts && (
+                            <div className="mb-10 space-y-6">
+                                {/* Revenue Trends */}
+                                <div className="bg-white rounded-2xl shadow-xl p-8">
+                                    <div className="flex items-center mb-6">
+                                        <div className="p-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl mr-3">
+                                            <ChartBarIcon className="h-6 w-6 text-blue-600" />
+                                        </div>
+                                        <h2 className="text-2xl font-bold text-gray-900">Revenue Trends</h2>
+                                    </div>
+                                    <ResponsiveContainer width="100%" height={300}>
+                                        <LineChart data={charts.revenueData}>
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis dataKey="month" />
+                                            <YAxis />
+                                            <Tooltip formatter={(value) => `RM ${parseFloat(value).toFixed(2)}`} />
+                                            <Legend />
+                                            <Line type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={3} name="Revenue (RM)" />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </div>
+
+                                {/* Popular Facilities & Booking Volume */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    {/* Popular Facilities */}
+                                    <div className="bg-white rounded-2xl shadow-xl p-8">
+                                        <div className="flex items-center mb-6">
+                                            <div className="p-3 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl mr-3">
+                                                <BuildingOfficeIcon className="h-6 w-6 text-purple-600" />
+                                            </div>
+                                            <h2 className="text-2xl font-bold text-gray-900">Popular Facilities</h2>
+                                        </div>
+                                        <ResponsiveContainer width="100%" height={300}>
+                                            <BarChart data={charts.popularFacilities}>
+                                                <CartesianGrid strokeDasharray="3 3" />
+                                                <XAxis dataKey="name" angle={-15} textAnchor="end" height={80} />
+                                                <YAxis />
+                                                <Tooltip />
+                                                <Legend />
+                                                <Bar dataKey="bookings" fill="#a855f7" name="Bookings" />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+
+                                    {/* Booking Volume */}
+                                    <div className="bg-white rounded-2xl shadow-xl p-8">
+                                        <div className="flex items-center mb-6">
+                                            <div className="p-3 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl mr-3">
+                                                <CalendarDaysIcon className="h-6 w-6 text-green-600" />
+                                            </div>
+                                            <h2 className="text-2xl font-bold text-gray-900">Booking Volume</h2>
+                                        </div>
+                                        <ResponsiveContainer width="100%" height={300}>
+                                            <LineChart data={charts.bookingVolumeData}>
+                                                <CartesianGrid strokeDasharray="3 3" />
+                                                <XAxis dataKey="month" />
+                                                <YAxis />
+                                                <Tooltip />
+                                                <Legend />
+                                                <Line type="monotone" dataKey="facilities" stroke="#3b82f6" strokeWidth={2} name="Facilities" />
+                                                <Line type="monotone" dataKey="activities" stroke="#10b981" strokeWidth={2} name="Activities" />
+                                                <Line type="monotone" dataKey="total" stroke="#f97316" strokeWidth={2} name="Total" />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Recent Activity with Modern Design */}
                         <div className="bg-white rounded-2xl shadow-xl p-8">

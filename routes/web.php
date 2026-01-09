@@ -6,6 +6,7 @@ use App\Http\Controllers\FacilityBookingController;
 use App\Http\Controllers\ActivityBookingController;
 use App\Http\Controllers\BookingActionController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\VRTourController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AdminFacilityController;
@@ -225,6 +226,10 @@ Route::get('/my-bookings', function () {
 
 // Language Switcher
 Route::post('/language', [LanguageController::class, 'switch'])->name('language.switch');
+
+// Equipment API
+Route::get('/api/equipment', [EquipmentController::class, 'index'])->name('equipment.index');
+Route::get('/api/equipment/{category}', [EquipmentController::class, 'getByCategory'])->name('equipment.by-category');
 
 // User Booking Actions (Cancel and Modify)
 Route::post('/bookings/{id}/cancel', [BookingActionController::class, 'cancel'])

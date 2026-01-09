@@ -53,6 +53,7 @@ class HandleInertiaRequests extends Middleware
                     'role' => $request->user()->role,
                 ] : null,
             ],
+            'locale' => session('locale', config('app.locale')),
         ];
     }
 }

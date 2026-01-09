@@ -140,22 +140,6 @@ export default function Dashboard({ auth }) {
                                     <p className="text-white/90 text-base md:text-xl mb-6 max-w-2xl">
                                         Your beach paradise awaits. Let's make some amazing memories today!
                                     </p>
-                                    <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center md:justify-start">
-                                        <Link
-                                            href="/book-facility"
-                                            className="inline-flex items-center justify-center px-8 py-3 md:py-4 bg-white text-orange-700 rounded-full font-bold hover:bg-orange-50 transition-all transform hover:scale-105 shadow-xl text-base md:text-lg"
-                                        >
-                                            <CalendarIcon className="h-5 w-5 md:h-6 md:w-6 mr-2" />
-                                            Book Now
-                                        </Link>
-                                        <Link
-                                            href="/facilities"
-                                            className="inline-flex items-center justify-center px-8 py-3 md:py-4 bg-white/10 backdrop-blur-md text-white border-2 border-white rounded-full font-bold hover:bg-white/20 transition-all text-base md:text-lg"
-                                        >
-                                            Explore Facilities
-                                            <ArrowRightIcon className="h-5 w-5 ml-2" />
-                                        </Link>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -300,33 +284,6 @@ export default function Dashboard({ auth }) {
                             </div>
                         </div>
 
-                        {/* Beach Promotion Banner */}
-                        <div className="mt-8 md:mt-10 relative overflow-hidden bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-600 rounded-3xl p-6 md:p-8 shadow-2xl border-2 border-yellow-300">
-                            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -mr-48 -mt-48 animate-pulse"></div>
-                            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full -ml-32 -mb-32 animate-pulse" style={{animationDelay: '2s'}}></div>
-
-                            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                                <div className="flex-1">
-                                    <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold rounded-full mb-3">
-                                        🎉 LIMITED TIME OFFER
-                                    </span>
-                                    <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-2">Special Beach Package</h3>
-                                    <p className="text-white/90 text-base md:text-lg mb-4 leading-relaxed">Book 3 days, get 1 day free! Limited time offer for our loyal visitors.</p>
-                                    <Link
-                                        href="/facilities"
-                                        className="inline-flex items-center justify-center px-8 py-3 md:py-4 bg-white text-orange-700 rounded-full font-bold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl text-base md:text-lg"
-                                    >
-                                        View Packages
-                                        <ArrowRightIcon className="h-5 w-5 ml-2" />
-                                    </Link>
-                                </div>
-                                <div className="hidden lg:block">
-                                    <div className="p-4 bg-white/20 backdrop-blur-sm rounded-3xl">
-                                        <MapPinIcon className="h-24 w-24 text-white/90" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

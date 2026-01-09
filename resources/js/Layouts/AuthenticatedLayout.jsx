@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { useState, Fragment } from 'react';
 import ChatBot from '@/Components/ChatBot';
 import Footer from '@/Components/Footer';
+import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import {
     HomeIcon,
     BuildingOfficeIcon,
@@ -26,6 +27,7 @@ import {
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
+    const locale = usePage().props.locale || 'en';
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -109,6 +111,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <p className="text-xs text-gray-500">{userRole}</p>
                                 </div>
                             </div>
+                            <div className="mb-3">
+                                <LanguageSwitcher currentLocale={locale} />
+                            </div>
                             <Link
                                 href={route('logout')}
                                 method="post"
@@ -166,6 +171,9 @@ export default function AuthenticatedLayout({ header, children }) {
 
                         {/* Logout */}
                         <div className="border-t border-gray-200 p-4">
+                            <div className="mb-3">
+                                <LanguageSwitcher currentLocale={locale} />
+                            </div>
                             <Link
                                 href={route('logout')}
                                 method="post"
@@ -246,6 +254,11 @@ export default function AuthenticatedLayout({ header, children }) {
 
                         {/* User Menu */}
                         <div className="flex items-center space-x-4">
+                            {/* Language Switcher */}
+                            <div className="hidden lg:block">
+                                <LanguageSwitcher currentLocale={locale} />
+                            </div>
+
                             {/* Desktop User Dropdown */}
                             <div className="hidden lg:block relative">
                                 <button
@@ -324,6 +337,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <p className="text-sm font-semibold text-gray-900">{user.name}</p>
                                         <p className="text-xs text-gray-500">{userRole}</p>
                                     </div>
+                                </div>
+                                <div className="px-4 mb-3">
+                                    <LanguageSwitcher currentLocale={locale} />
                                 </div>
                                 <Link
                                     href={route('profile.edit')}

@@ -1,8 +1,11 @@
 import Footer from '@/Components/Footer';
-import { Link } from '@inertiajs/react';
+import LanguageSwitcher from '@/Components/LanguageSwitcher';
+import { Link, usePage } from '@inertiajs/react';
 import { SunIcon } from '@heroicons/react/24/outline';
 
 export default function GuestLayout({ children }) {
+    const locale = usePage().props.locale || 'en';
+
     return (
         <div className="flex min-h-screen flex-col bg-gradient-to-b from-orange-50 via-amber-50 to-yellow-50">
             {/* Main Content Area */}
@@ -12,6 +15,11 @@ export default function GuestLayout({ children }) {
                 <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-amber-200 to-yellow-300 rounded-full blur-3xl opacity-30 translate-x-1/2 translate-y-1/2"></div>
 
                 <div className="relative z-10 w-full sm:max-w-md px-6">
+                    {/* Language Switcher */}
+                    <div className="flex justify-end mb-4">
+                        <LanguageSwitcher currentLocale={locale} />
+                    </div>
+
                     {/* Logo Section */}
                     <div className="text-center mb-8">
                         <Link href="/" className="inline-block">

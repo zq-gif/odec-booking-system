@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import EquipmentSelector from '@/Components/EquipmentSelector';
 import { Head } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -36,7 +37,8 @@ export default function BookActivity({ auth, activities, paymentQrCode }) {
         phone: '',
         participants: 1,
         paymentMethod: '',
-        receiptFile: null
+        receiptFile: null,
+        equipment: []
     });
 
     // Parse duration string (e.g., "2 hours", "1.5 hours", "30 minutes") to minutes
@@ -109,15 +111,21 @@ export default function BookActivity({ auth, activities, paymentQrCode }) {
     const fetchBookedSlots = async () => {
         setLoadingSlots(true);
         try {
+            console.log('Fetching booked slots for:', {
+                activity_id: bookingData.activity.id,
+                date: bookingData.date
+            });
             const response = await axios.get('/api/activity-bookings/booked-slots', {
                 params: {
                     activity_id: bookingData.activity.id,
                     date: bookingData.date
                 }
             });
+            console.log('Booked slots received:', response.data);
             setBookedSlots(response.data);
         } catch (error) {
             console.error('Error fetching booked slots:', error);
+            console.error('Error response:', error.response?.data);
         }
         setLoadingSlots(false);
     };
@@ -193,6 +201,14 @@ export default function BookActivity({ auth, activities, paymentQrCode }) {
             formData.append('number_of_participants', parseInt(bookingData.participants));
             formData.append('phone_number', bookingData.phone);
             formData.append('payment_method', bookingData.paymentMethod);
+
+            // Add equipment if selected
+            if (bookingData.equipment && bookingData.equipment.length > 0) {
+                bookingData.equipment.forEach((item, index) => {
+                    formData.append(`equipment[${index}][id]`, item.id);
+                    formData.append(`equipment[${index}][quantity]`, item.quantity);
+                });
+            }
 
             // Add receipt file if provided
             if (bookingData.receiptFile) {
@@ -439,47 +455,57 @@ export default function BookActivity({ auth, activities, paymentQrCode }) {
                         {currentStep === 3 && (
                             <div>
                                 <h2 className="text-lg font-semibold text-gray-900 mb-6">Enter Booking Details</h2>
-                                <div className="max-w-md mx-auto space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                                        <input
-                                            type="text"
-                                            value={bookingData.name}
-                                            onChange={(e) => setBookingData({ ...bookingData, name: e.target.value })}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
+                                <div className="max-w-2xl mx-auto space-y-6">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                                            <input
+                                                type="text"
+                                                value={bookingData.name}
+                                                onChange={(e) => setBookingData({ ...bookingData, name: e.target.value })}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                            <input
+                                                type="email"
+                                                value={bookingData.email}
+                                                onChange={(e) => setBookingData({ ...bookingData, email: e.target.value })}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                                            <input
+                                                type="tel"
+                                                value={bookingData.phone}
+                                                onChange={(e) => setBookingData({ ...bookingData, phone: e.target.value })}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Number of Participants</label>
+                                            <input
+                                                type="number"
+                                                value={bookingData.participants}
+                                                onChange={(e) => setBookingData({ ...bookingData, participants: e.target.value })}
+                                                min="1"
+                                                max={bookingData.activity?.capacity || 100}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                            <p className="mt-1 text-xs text-gray-500">
+                                                Maximum capacity: {bookingData.activity?.capacity} people
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                        <input
-                                            type="email"
-                                            value={bookingData.email}
-                                            onChange={(e) => setBookingData({ ...bookingData, email: e.target.value })}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+
+                                    {/* Equipment Selector */}
+                                    <div className="border-t border-gray-200 pt-6">
+                                        <EquipmentSelector
+                                            selectedEquipment={bookingData.equipment}
+                                            onEquipmentChange={(equipment) => setBookingData({ ...bookingData, equipment })}
                                         />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                                        <input
-                                            type="tel"
-                                            value={bookingData.phone}
-                                            onChange={(e) => setBookingData({ ...bookingData, phone: e.target.value })}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Number of Participants</label>
-                                        <input
-                                            type="number"
-                                            value={bookingData.participants}
-                                            onChange={(e) => setBookingData({ ...bookingData, participants: e.target.value })}
-                                            min="1"
-                                            max={bookingData.activity?.capacity || 100}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        />
-                                        <p className="mt-1 text-xs text-gray-500">
-                                            Maximum capacity: {bookingData.activity?.capacity} people
-                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -562,10 +588,8 @@ export default function BookActivity({ auth, activities, paymentQrCode }) {
                                     {(bookingData.paymentMethod === 'cash' || bookingData.paymentMethod === 'bank_transfer') && (
                                         <div className="mt-4">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Upload Payment Receipt
-                                                {bookingData.paymentMethod === 'cash' && (
-                                                    <span className="text-amber-600 ml-1">(10% Deposit Receipt)</span>
-                                                )}
+                                                Upload Payment Receipt <span className="text-red-600">*</span>
+                                                <span className="text-amber-600 ml-1">(10% Deposit Receipt Required)</span>
                                             </label>
                                             <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors">
                                                 <div className="space-y-1 text-center">
@@ -630,10 +654,10 @@ export default function BookActivity({ auth, activities, paymentQrCode }) {
                                                 <div className="mt-2 space-y-3">
                                                     <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                                                         <p className="text-xs text-blue-800">
-                                                            <strong>Bank Details for Full Payment:</strong><br />
+                                                            <strong>Bank Details for Deposit Transfer:</strong><br />
                                                             Maybank - ODEC UMS Beach Club<br />
                                                             Account: 1234567890<br />
-                                                            Amount: ${calculateTotal()}
+                                                            Amount: ${calculateDeposit()} (10% deposit)
                                                         </p>
                                                     </div>
                                                     {paymentQrCode && (
@@ -686,17 +710,40 @@ export default function BookActivity({ auth, activities, paymentQrCode }) {
                                             padding-bottom: 20px;
                                             border-bottom: 2px solid #000;
                                         }
+                                        .security-watermark {
+                                            display: block !important;
+                                        }
+                                        .security-border {
+                                            border: 3px double #000 !important;
+                                            padding: 20px !important;
+                                        }
                                     }
                                     .print-header {
                                         display: none;
                                     }
+                                    .security-watermark {
+                                        display: none;
+                                        position: fixed;
+                                        top: 50%;
+                                        left: 50%;
+                                        transform: translate(-50%, -50%) rotate(-45deg);
+                                        font-size: 120px;
+                                        font-weight: bold;
+                                        color: rgba(0, 0, 0, 0.05);
+                                        z-index: -1;
+                                        pointer-events: none;
+                                        white-space: nowrap;
+                                    }
                                 `}</style>
+                                <div className="security-watermark">OFFICIAL RECEIPT</div>
                                 <div className="py-8 printable-area">
                                     <div className="max-w-2xl mx-auto">
                                         {/* Print Header */}
                                         <div className="print-header text-center">
-                                            <h1 className="text-3xl font-bold text-gray-900">ODEC Booking System</h1>
-                                            <p className="text-gray-600 mt-2">Activity Booking Confirmation</p>
+                                            <h1 className="text-3xl font-bold text-gray-900">ODEC UMS BEACH CLUB</h1>
+                                            <p className="text-gray-600 mt-1">Official Booking System</p>
+                                            <p className="text-sm text-gray-500 mt-1">Activity Booking Confirmation</p>
+                                            <p className="text-xs text-gray-400 mt-2">Issued: {new Date().toLocaleString('en-MY', { timeZone: 'Asia/Kuala_Lumpur', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                                         </div>
 
                                         {/* Success Icon and Message */}
@@ -720,13 +767,19 @@ export default function BookActivity({ auth, activities, paymentQrCode }) {
                                         </div>
 
                                         {/* Booking Details Card */}
-                                        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-                                            {/* Reference Number */}
-                                            <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-                                                <h3 className="text-lg font-semibold text-gray-900">Booking Details</h3>
-                                                <span className="text-sm text-gray-600">
-                                                    Reference: <span className="font-semibold text-gray-900">{referenceNumber}</span>
-                                                </span>
+                                        <div className="bg-white border-2 border-gray-300 rounded-lg p-6 mb-6 security-border">
+                                            {/* Security Header */}
+                                            <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 -m-6 mb-6 rounded-t-lg">
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <p className="text-xs uppercase tracking-wide opacity-90">Official Document</p>
+                                                        <h3 className="text-xl font-bold mt-1">Booking Confirmation</h3>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-xs opacity-90">Reference No.</p>
+                                                        <p className="text-lg font-mono font-bold tracking-wider">{referenceNumber}</p>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             {/* Details with Icons */}
@@ -769,13 +822,50 @@ export default function BookActivity({ auth, activities, paymentQrCode }) {
                                                 <div className="flex justify-between items-center mb-2">
                                                     <span className="text-sm text-gray-600">Payment Method</span>
                                                     <span className="font-medium text-gray-900">
-                                                        {bookingData.paymentMethod === 'cash' && 'Cash on Arrival'}
-                                                        {bookingData.paymentMethod === 'bank_transfer' && 'Bank Transfer'}
+                                                        {bookingData.paymentMethod === 'cash' && 'Cash on Arrival (10% Deposit)'}
+                                                        {bookingData.paymentMethod === 'bank_transfer' && 'Bank Transfer (10% Deposit)'}
                                                     </span>
                                                 </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-sm font-semibold text-gray-900">Amount Paid</span>
-                                                    <span className="font-bold text-lg text-green-600">${calculateTotal()}</span>
+                                                <div className="flex justify-between items-center pt-2 border-t border-gray-300">
+                                                    <span className="text-sm font-semibold text-gray-900">Total Booking Amount</span>
+                                                    <span className="font-semibold text-gray-900">${calculateTotal()}</span>
+                                                </div>
+                                                {(bookingData.paymentMethod === 'cash' || bookingData.paymentMethod === 'bank_transfer') && (
+                                                    <>
+                                                        <div className="flex justify-between items-center pt-2">
+                                                            <span className="text-sm font-bold text-amber-700">Amount Paid (10% Deposit)</span>
+                                                            <span className="font-bold text-lg text-amber-700">${calculateDeposit()}</span>
+                                                        </div>
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="text-sm text-gray-600">Balance Due at Check-in</span>
+                                                            <span className="font-semibold text-gray-900">${calculateRemainingBalance()}</span>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+
+                                            {/* Security Footer */}
+                                            <div className="mt-6 pt-4 border-t-2 border-dashed border-gray-300">
+                                                <div className="bg-gray-50 p-4 rounded-lg">
+                                                    <p className="text-xs font-semibold text-gray-700 mb-2">VERIFICATION INFORMATION</p>
+                                                    <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                                                        <div>
+                                                            <span className="font-medium">Document ID:</span> {referenceNumber}
+                                                        </div>
+                                                        <div>
+                                                            <span className="font-medium">Issue Date:</span> {new Date().toLocaleDateString('en-MY')}
+                                                        </div>
+                                                        <div className="col-span-2">
+                                                            <span className="font-medium">Verification:</span> This is an official booking confirmation from ODEC UMS Beach Club
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded">
+                                                    <p className="text-xs text-amber-900">
+                                                        <span className="font-bold">⚠ IMPORTANT:</span> This document is for verification purposes only.
+                                                        Please present this confirmation along with valid identification upon arrival.
+                                                        Any alterations to this document will render it invalid.
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -784,6 +874,9 @@ export default function BookActivity({ auth, activities, paymentQrCode }) {
                                         <div className="text-center mb-6">
                                             <p className="text-sm text-gray-600">
                                                 A confirmation email has been sent to <span className="font-medium text-gray-900">{bookingData.email}</span> with all the booking details.
+                                            </p>
+                                            <p className="text-xs text-gray-500 mt-2">
+                                                For verification inquiries, contact ODEC UMS Beach Club with reference number: <span className="font-mono font-semibold">{referenceNumber}</span>
                                             </p>
                                         </div>
 
@@ -857,7 +950,7 @@ export default function BookActivity({ auth, activities, paymentQrCode }) {
                                                     <div className="ml-3 flex-1">
                                                         <h3 className="text-base font-semibold text-blue-900 mb-2">Bank Transfer - Payment Instructions</h3>
                                                         <div className="text-sm text-blue-800 space-y-3">
-                                                            <p className="font-medium">Please transfer the amount to:</p>
+                                                            <p className="font-medium">Please transfer the deposit amount to:</p>
                                                             <div className="bg-white p-4 rounded-lg border border-blue-200 space-y-2">
                                                                 <div className="flex justify-between">
                                                                     <span className="text-gray-600">Bank Name:</span>
@@ -872,8 +965,8 @@ export default function BookActivity({ auth, activities, paymentQrCode }) {
                                                                     <span className="font-semibold">1234567890</span>
                                                                 </div>
                                                                 <div className="flex justify-between border-t pt-2">
-                                                                    <span className="text-gray-600">Amount to Transfer:</span>
-                                                                    <span className="font-bold text-lg text-blue-600">${calculateTotal()}</span>
+                                                                    <span className="text-gray-600">Deposit Amount (10%):</span>
+                                                                    <span className="font-bold text-lg text-blue-600">${calculateDeposit()}</span>
                                                                 </div>
                                                                 <div className="flex justify-between">
                                                                     <span className="text-gray-600">Reference:</span>
@@ -885,7 +978,7 @@ export default function BookActivity({ auth, activities, paymentQrCode }) {
                                                                 <ul className="text-xs text-yellow-800 space-y-1 ml-4 list-disc">
                                                                     <li>Include your booking reference number <span className="font-bold">{referenceNumber}</span> in the transfer description</li>
                                                                     <li>Receipt has been uploaded with your booking</li>
-                                                                    <li>Your booking will be confirmed once payment is verified (usually within 24 hours)</li>
+                                                                    <li>Pay remaining balance of <span className="font-bold">${calculateRemainingBalance()}</span> at check-in</li>
                                                                 </ul>
                                                             </div>
                                                         </div>
@@ -929,7 +1022,8 @@ export default function BookActivity({ auth, activities, paymentQrCode }) {
                                     disabled={
                                         (currentStep === 2 && (!bookingData.date || !bookingData.time)) ||
                                         (currentStep === 3 && (!bookingData.phone || !bookingData.participants)) ||
-                                        (currentStep === 4 && !bookingData.paymentMethod)
+                                        (currentStep === 4 && (!bookingData.paymentMethod ||
+                                            ((bookingData.paymentMethod === 'cash' || bookingData.paymentMethod === 'bank_transfer') && !bookingData.receiptFile)))
                                     }
                                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
