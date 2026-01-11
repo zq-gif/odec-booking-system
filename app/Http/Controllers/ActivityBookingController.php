@@ -64,7 +64,9 @@ class ActivityBookingController extends Controller
             $file = $request->file('payment_receipt');
             $filename = $referenceNumber . '_' . time() . '.' . $file->getClientOriginalExtension();
             $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
-            $receiptPath = Storage::disk($disk)->putFileAs('payment_receipts', $file, $filename);
+            $path = Storage::disk($disk)->putFileAs('payment_receipts', $file, $filename);
+            // Get full URL for Cloudinary
+            $receiptPath = ($disk === 'cloudinary') ? Storage::disk($disk)->url($path) : $path;
         }
 
         $booking = DB::transaction(function () use ($request, $referenceNumber, $finalAmount, $receiptPath) {

@@ -59,11 +59,19 @@ class AnnouncementController extends Controller
                 error_log('Disk instance created successfully');
 
                 // Attempt the upload
-                $photoPath = $storage->putFile('announcements', $request->file('photo'));
-                error_log('Upload successful - Photo path: ' . $photoPath);
+                $path = $storage->putFile('announcements', $request->file('photo'));
+                error_log('Upload successful - Path returned: ' . $path);
+
+                // Get the full URL for Cloudinary
+                if ($disk === 'cloudinary') {
+                    $photoPath = $storage->url($path);
+                    error_log('Cloudinary URL: ' . $photoPath);
+                } else {
+                    $photoPath = $path;
+                }
 
                 // Verify the path looks like a Cloudinary URL
-                if (!str_starts_with($photoPath, 'http')) {
+                if ($disk === 'cloudinary' && !str_starts_with($photoPath, 'http')) {
                     error_log('WARNING: Photo path does not start with http - path is: ' . $photoPath);
                 }
             } catch (\Exception $e) {
@@ -117,7 +125,9 @@ class AnnouncementController extends Controller
             if ($announcement->photo_path && !str_starts_with($announcement->photo_path, 'http')) {
                 Storage::disk($disk)->delete($announcement->photo_path);
             }
-            $photoPath = Storage::disk($disk)->putFile('announcements', $request->file('photo'));
+            $path = Storage::disk($disk)->putFile('announcements', $request->file('photo'));
+            // Get full URL for Cloudinary
+            $photoPath = ($disk === 'cloudinary') ? Storage::disk($disk)->url($path) : $path;
             $updateData['photo_path'] = $photoPath;
         } elseif (!empty($validated['photo_url'])) {
             $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
