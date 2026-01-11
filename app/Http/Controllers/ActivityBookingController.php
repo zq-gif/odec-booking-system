@@ -8,6 +8,7 @@ use App\Models\Equipment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ActivityBookingController extends Controller
 {
@@ -63,7 +64,7 @@ class ActivityBookingController extends Controller
             $file = $request->file('payment_receipt');
             $filename = $referenceNumber . '_' . time() . '.' . $file->getClientOriginalExtension();
             $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
-            $receiptPath = $file->storeAs('payment_receipts', $filename, $disk);
+            $receiptPath = Storage::disk($disk)->putFileAs('payment_receipts', $file, $filename);
         }
 
         $booking = DB::transaction(function () use ($request, $referenceNumber, $finalAmount, $receiptPath) {

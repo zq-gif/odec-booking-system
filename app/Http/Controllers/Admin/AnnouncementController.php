@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class AnnouncementController extends Controller
@@ -35,7 +36,9 @@ class AnnouncementController extends Controller
         if ($request->hasFile('photo')) {
             // Use Cloudinary for production, public disk for local
             $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
-            $photoPath = $request->file('photo')->store('announcements', $disk);
+            \Log::info('AnnouncementController Store - APP_ENV: ' . env('APP_ENV') . ', Using disk: ' . $disk);
+            $photoPath = Storage::disk($disk)->putFile('announcements', $request->file('photo'));
+            \Log::info('AnnouncementController Store - Photo path: ' . $photoPath);
         } elseif (!empty($validated['photo_url'])) {
             $photoPath = $validated['photo_url'];
         }
@@ -74,15 +77,15 @@ class AnnouncementController extends Controller
             $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
             // Delete old photo if exists and is not a URL
             if ($announcement->photo_path && !str_starts_with($announcement->photo_path, 'http')) {
-                \Illuminate\Support\Facades\Storage::disk($disk)->delete($announcement->photo_path);
+                Storage::disk($disk)->delete($announcement->photo_path);
             }
-            $photoPath = $request->file('photo')->store('announcements', $disk);
+            $photoPath = Storage::disk($disk)->putFile('announcements', $request->file('photo'));
             $updateData['photo_path'] = $photoPath;
         } elseif (!empty($validated['photo_url'])) {
             $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
             // Delete old photo if exists and is not a URL
             if ($announcement->photo_path && !str_starts_with($announcement->photo_path, 'http')) {
-                \Illuminate\Support\Facades\Storage::disk($disk)->delete($announcement->photo_path);
+                Storage::disk($disk)->delete($announcement->photo_path);
             }
             $updateData['photo_path'] = $validated['photo_url'];
         }
@@ -94,10 +97,10 @@ class AnnouncementController extends Controller
 
     public function destroy(Announcement $announcement)
     {
-        $disk = env('FILESYSTEM_DISK', 'public');
+        $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
         // Delete photo if exists and is not a URL
         if ($announcement->photo_path && !str_starts_with($announcement->photo_path, 'http')) {
-            \Illuminate\Support\Facades\Storage::disk($disk)->delete($announcement->photo_path);
+            Storage::disk($disk)->delete($announcement->photo_path);
         }
 
         $announcement->delete();
