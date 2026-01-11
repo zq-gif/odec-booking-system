@@ -43,7 +43,7 @@ class SettingsController extends Controller
             $path = Storage::disk($disk)->putFileAs('qr_codes', $file, $filename);
 
             // Get full URL for Cloudinary
-            $qrCodePath = ($disk === 'cloudinary') ? Storage::disk($disk)->url($path) : $path;
+            $qrCodePath = ($disk === 'cloudinary') ? Storage::disk($disk)->url($path) : '/storage/' . $path;
 
             // Update setting
             Setting::set('payment_qr_code', $qrCodePath);
