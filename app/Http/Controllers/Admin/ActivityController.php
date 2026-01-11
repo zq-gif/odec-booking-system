@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ActivityController extends Controller
@@ -44,8 +45,9 @@ class ActivityController extends Controller
         // Handle image upload
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('activities', 'public');
-            $imagePath = '/storage/' . $imagePath;
+            $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
+            $path = Storage::disk($disk)->putFile('activities', $request->file('image'));
+            $imagePath = ($disk === 'cloudinary') ? Storage::disk($disk)->url($path) : '/storage/' . $path;
         } elseif ($request->image_url) {
             $imagePath = $request->image_url;
         }
@@ -53,8 +55,9 @@ class ActivityController extends Controller
         // Handle VR tour image upload
         $vrTourImagePath = null;
         if ($request->hasFile('vr_tour_image')) {
-            $vrTourImagePath = $request->file('vr_tour_image')->store('activities/vr', 'public');
-            $vrTourImagePath = '/storage/' . $vrTourImagePath;
+            $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
+            $path = Storage::disk($disk)->putFile('activities/vr', $request->file('vr_tour_image'));
+            $vrTourImagePath = ($disk === 'cloudinary') ? Storage::disk($disk)->url($path) : '/storage/' . $path;
         } elseif ($request->vr_tour_image_url) {
             $vrTourImagePath = $request->vr_tour_image_url;
         }
@@ -100,8 +103,13 @@ class ActivityController extends Controller
         // Handle image upload
         $imagePath = $activity->image; // Keep existing image by default
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('activities', 'public');
-            $imagePath = '/storage/' . $imagePath;
+            $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
+            // Delete old image if exists and is not a URL
+            if ($activity->image && !str_starts_with($activity->image, 'http') && !str_starts_with($activity->image, '/storage/')) {
+                Storage::disk($disk)->delete($activity->image);
+            }
+            $path = Storage::disk($disk)->putFile('activities', $request->file('image'));
+            $imagePath = ($disk === 'cloudinary') ? Storage::disk($disk)->url($path) : '/storage/' . $path;
         } elseif ($request->filled('image_url')) {
             $imagePath = $request->image_url;
         }
@@ -109,8 +117,13 @@ class ActivityController extends Controller
         // Handle VR tour image upload
         $vrTourImagePath = $activity->vr_tour_image; // Keep existing VR tour image by default
         if ($request->hasFile('vr_tour_image')) {
-            $vrTourImagePath = $request->file('vr_tour_image')->store('activities/vr', 'public');
-            $vrTourImagePath = '/storage/' . $vrTourImagePath;
+            $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
+            // Delete old VR tour image if exists and is not a URL
+            if ($activity->vr_tour_image && !str_starts_with($activity->vr_tour_image, 'http') && !str_starts_with($activity->vr_tour_image, '/storage/')) {
+                Storage::disk($disk)->delete($activity->vr_tour_image);
+            }
+            $path = Storage::disk($disk)->putFile('activities/vr', $request->file('vr_tour_image'));
+            $vrTourImagePath = ($disk === 'cloudinary') ? Storage::disk($disk)->url($path) : '/storage/' . $path;
         } elseif ($request->filled('vr_tour_image_url')) {
             $vrTourImagePath = $request->vr_tour_image_url;
         }
