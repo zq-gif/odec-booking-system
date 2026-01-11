@@ -186,7 +186,13 @@ export default function Activities({ auth, activities }) {
                                         {/* Image */}
                                         {activity.image ? (
                                             <img
-                                                src={activity.image}
+                                                src={
+                                                    activity.image.startsWith('http')
+                                                        ? activity.image
+                                                        : activity.image.startsWith('/storage/')
+                                                            ? activity.image
+                                                            : `/storage/${activity.image}`
+                                                }
                                                 alt={activity.name}
                                                 className="w-full h-48 object-cover"
                                             />

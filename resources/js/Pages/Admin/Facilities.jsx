@@ -179,7 +179,13 @@ export default function Facilities({ auth, facilities }) {
                                         {/* Image */}
                                         {facility.image ? (
                                             <img
-                                                src={facility.image}
+                                                src={
+                                                    facility.image.startsWith('http')
+                                                        ? facility.image
+                                                        : facility.image.startsWith('/storage/')
+                                                            ? facility.image
+                                                            : `/storage/${facility.image}`
+                                                }
                                                 alt={facility.name}
                                                 className="w-full h-48 object-cover"
                                             />

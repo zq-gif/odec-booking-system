@@ -78,7 +78,15 @@ export default function Facilities({ auth, facilities = [] }) {
                                 {/* Image */}
                                 <div className="relative h-48 overflow-hidden">
                                     <img
-                                        src={facility.image || 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&auto=format&fit=crop'}
+                                        src={
+                                            facility.image
+                                                ? (facility.image.startsWith('http')
+                                                    ? facility.image
+                                                    : facility.image.startsWith('/storage/')
+                                                        ? facility.image
+                                                        : `/storage/${facility.image}`)
+                                                : 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&auto=format&fit=crop'
+                                        }
                                         alt={facility.name}
                                         className="h-full w-full object-cover transition-transform hover:scale-105"
                                     />
