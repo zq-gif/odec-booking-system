@@ -37,15 +37,41 @@ class AnnouncementController extends Controller
             // Temporarily hardcode cloudinary to test
             $disk = 'cloudinary';
             \Log::info('AnnouncementController Store - APP_ENV: ' . env('APP_ENV'));
-            \Log::info('AnnouncementController Store - CLOUDINARY_URL: ' . (env('CLOUDINARY_URL') ? 'SET' : 'NOT SET'));
+            \Log::info('AnnouncementController Store - CLOUDINARY_URL exists: ' . (env('CLOUDINARY_URL') ? 'YES' : 'NO'));
+
+            // Check if CLOUDINARY_URL is properly formatted
+            $cloudinaryUrl = env('CLOUDINARY_URL');
+            if ($cloudinaryUrl) {
+                \Log::info('AnnouncementController Store - CLOUDINARY_URL starts with: ' . substr($cloudinaryUrl, 0, 15));
+            }
+
             \Log::info('AnnouncementController Store - Using disk: ' . $disk);
 
+            // Validate that Cloudinary disk config exists
+            $diskConfig = config('filesystems.disks.cloudinary');
+            \Log::info('AnnouncementController Store - Disk config URL: ' . ($diskConfig['url'] ?? 'NULL'));
+
             try {
-                $photoPath = Storage::disk($disk)->putFile('announcements', $request->file('photo'));
-                \Log::info('AnnouncementController Store - Photo path: ' . $photoPath);
+                // Try to get the disk instance
+                $storage = Storage::disk($disk);
+                \Log::info('AnnouncementController Store - Disk instance created successfully');
+
+                // Attempt the upload
+                $photoPath = $storage->putFile('announcements', $request->file('photo'));
+                \Log::info('AnnouncementController Store - Upload successful - Photo path: ' . $photoPath);
+
+                // Verify the path looks like a Cloudinary URL
+                if (!str_starts_with($photoPath, 'http')) {
+                    \Log::error('AnnouncementController Store - WARNING: Photo path does not start with http: ' . $photoPath);
+                }
             } catch (\Exception $e) {
                 \Log::error('AnnouncementController Store - Error: ' . $e->getMessage());
-                throw $e;
+                \Log::error('AnnouncementController Store - Error trace: ' . $e->getTraceAsString());
+
+                // Fall back to public disk on error
+                \Log::info('AnnouncementController Store - Falling back to public disk');
+                $photoPath = Storage::disk('public')->putFile('announcements', $request->file('photo'));
+                \Log::info('AnnouncementController Store - Fallback upload path: ' . $photoPath);
             }
         } elseif (!empty($validated['photo_url'])) {
             $photoPath = $validated['photo_url'];
