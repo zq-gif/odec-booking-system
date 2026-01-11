@@ -36,7 +36,9 @@ class SettingsController extends Controller
             // Delete old QR code if exists
             $oldPath = Setting::get('payment_qr_code');
             if ($oldPath && !str_starts_with($oldPath, 'http')) {
-                Storage::disk($disk)->delete($oldPath);
+                // Remove /storage/ prefix if it exists for deletion
+                $pathToDelete = str_starts_with($oldPath, '/storage/') ? substr($oldPath, 9) : $oldPath;
+                Storage::disk($disk)->delete($pathToDelete);
             }
 
             // Upload new QR code
