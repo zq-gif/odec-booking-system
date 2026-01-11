@@ -548,7 +548,13 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
                                                                 Scan QR Code to Pay
                                                             </p>
                                                             <img
-                                                                src={`/storage/${paymentQrCode}`}
+                                                                src={
+                                                                    paymentQrCode.startsWith('http')
+                                                                        ? paymentQrCode
+                                                                        : paymentQrCode.startsWith('/storage/')
+                                                                            ? paymentQrCode
+                                                                            : `/storage/${paymentQrCode}`
+                                                                }
                                                                 alt="Payment QR Code"
                                                                 className="max-w-full h-auto mx-auto rounded"
                                                                 style={{ maxHeight: '250px' }}
@@ -576,7 +582,13 @@ export default function BookFacility({ auth, facilities, paymentQrCode }) {
                                                                 Scan QR Code to Pay
                                                             </p>
                                                             <img
-                                                                src={`/storage/${paymentQrCode}`}
+                                                                src={
+                                                                    paymentQrCode.startsWith('http')
+                                                                        ? paymentQrCode
+                                                                        : paymentQrCode.startsWith('/storage/')
+                                                                            ? paymentQrCode
+                                                                            : `/storage/${paymentQrCode}`
+                                                                }
                                                                 alt="Payment QR Code"
                                                                 className="max-w-full h-auto mx-auto rounded"
                                                                 style={{ maxHeight: '250px' }}

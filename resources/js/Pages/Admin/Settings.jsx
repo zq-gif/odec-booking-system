@@ -62,7 +62,13 @@ export default function Settings({ auth, paymentQrCode }) {
                                 {paymentQrCode ? (
                                     <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
                                         <img
-                                            src={`/storage/${paymentQrCode}`}
+                                            src={
+                                                paymentQrCode.startsWith('http')
+                                                    ? paymentQrCode // Cloudinary or external URL
+                                                    : paymentQrCode.startsWith('/storage/')
+                                                        ? paymentQrCode // Old format with /storage/
+                                                        : `/storage/${paymentQrCode}` // New local storage format
+                                            }
                                             alt="Payment QR Code"
                                             className="max-w-full h-auto mx-auto"
                                             style={{ maxHeight: '300px' }}
