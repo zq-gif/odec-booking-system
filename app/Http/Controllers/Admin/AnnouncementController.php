@@ -34,11 +34,19 @@ class AnnouncementController extends Controller
 
         $photoPath = null;
         if ($request->hasFile('photo')) {
-            // Use Cloudinary for production, public disk for local
-            $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
-            \Log::info('AnnouncementController Store - APP_ENV: ' . env('APP_ENV') . ', Using disk: ' . $disk);
-            $photoPath = Storage::disk($disk)->putFile('announcements', $request->file('photo'));
-            \Log::info('AnnouncementController Store - Photo path: ' . $photoPath);
+            // Temporarily hardcode cloudinary to test
+            $disk = 'cloudinary';
+            \Log::info('AnnouncementController Store - APP_ENV: ' . env('APP_ENV'));
+            \Log::info('AnnouncementController Store - CLOUDINARY_URL: ' . (env('CLOUDINARY_URL') ? 'SET' : 'NOT SET'));
+            \Log::info('AnnouncementController Store - Using disk: ' . $disk);
+
+            try {
+                $photoPath = Storage::disk($disk)->putFile('announcements', $request->file('photo'));
+                \Log::info('AnnouncementController Store - Photo path: ' . $photoPath);
+            } catch (\Exception $e) {
+                \Log::error('AnnouncementController Store - Error: ' . $e->getMessage());
+                throw $e;
+            }
         } elseif (!empty($validated['photo_url'])) {
             $photoPath = $validated['photo_url'];
         }
