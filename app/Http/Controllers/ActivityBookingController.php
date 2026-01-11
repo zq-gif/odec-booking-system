@@ -62,7 +62,7 @@ class ActivityBookingController extends Controller
         if ($request->hasFile('payment_receipt')) {
             $file = $request->file('payment_receipt');
             $filename = $referenceNumber . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $disk = env('FILESYSTEM_DISK', 'public');
+            $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
             $receiptPath = $file->storeAs('payment_receipts', $filename, $disk);
         }
 
