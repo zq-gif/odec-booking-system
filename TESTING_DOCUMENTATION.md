@@ -826,14 +826,7 @@ Based on testing feedback and observations:
 
 ### 6.13.5 Conclusion
 
-The comprehensive testing of the ODEC Booking System demonstrates that it is a robust, user-friendly, and efficient solution for managing facility and activity bookings. Functional testing, as the primary methodology, validated all 23 test cases with a 100% pass rate, confirming that the system meets all specified requirements. The system achieved excellent scores in usability testing (SUS: 82.1) and received unanimous positive feedback from ODEC administrative staff. All functional requirements have been validated through rigorous functional, integration, and acceptance testing.
-
-Key achievements include:
-- **100% functional test pass rate** across all modules
-- **Excellent usability score** (82.1/100 SUS)
-- **Zero critical bugs** in production-ready code
-- **Successful bug resolution** (payment receipt display issue)
-- **Strong performance** under expected load conditions
+The comprehensive testing of the ODEC Booking System demonstrates that it is a robust, user-friendly, and efficient solution for managing facility and activity bookings. The system achieved excellent scores in usability testing (SUS: 82.1) and received unanimous positive feedback from ODEC administrative staff. All functional requirements have been validated through rigorous unit, integration, and acceptance testing.
 
 The system is ready for deployment and will significantly improve the booking process for both ODEC staff and visitors. Minor enhancements identified during testing can be implemented in future iterations to further improve the user experience.
 

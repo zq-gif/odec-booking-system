@@ -241,7 +241,7 @@ Route::post('/bookings/{id}/request-modification', [BookingActionController::cla
     ->middleware(['auth', 'verified'])
     ->name('bookings.request-modification');
 
-Route::get('/bookings/{id}/review', [BookingActionController::class, 'showReviewForm'])
+Route::get('/bookings/{type}/{id}/review', [BookingActionController::class, 'showReviewForm'])
     ->middleware(['auth', 'verified'])
     ->name('bookings.review');
 

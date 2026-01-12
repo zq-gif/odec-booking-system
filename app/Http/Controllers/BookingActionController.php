@@ -112,13 +112,16 @@ class BookingActionController extends Controller
     /**
      * Show the review form for a completed booking.
      */
-    public function showReviewForm(string $id)
+    public function showReviewForm(string $type, string $id)
     {
-        // Try to find booking in both facility and activity bookings
-        $facilityBooking = FacilityBooking::with('facility')->find($id);
-        $activityBooking = ActivityBooking::with('activity')->find($id);
-
-        $booking = $facilityBooking ?? $activityBooking;
+        // Find booking based on type
+        if ($type === 'facility') {
+            $booking = FacilityBooking::with('facility')->find($id);
+            $itemName = $booking?->facility->name;
+        } else {
+            $booking = ActivityBooking::with('activity')->find($id);
+            $itemName = $booking?->activity->name;
+        }
 
         if (!$booking) {
             return redirect()->route('my-bookings')->with('error', 'Booking not found.');
@@ -137,8 +140,8 @@ class BookingActionController extends Controller
         // Prepare booking data for the form
         $bookingData = [
             'id' => $booking->id,
-            'type' => $facilityBooking ? 'facility' : 'activity',
-            'facility' => $facilityBooking ? $booking->facility->name : $booking->activity->name,
+            'type' => $type,
+            'facility' => $itemName,
             'date' => $booking->booking_date,
             'ref' => $booking->reference_number,
         ];

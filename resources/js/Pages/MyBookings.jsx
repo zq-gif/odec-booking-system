@@ -255,7 +255,7 @@ export default function MyBookings({ auth, bookings: dbBookings }) {
                                                 </button>
                                                 {booking.status === 'completed' && (
                                                     <button
-                                                        onClick={() => router.visit(`/bookings/${booking.id}/review`)}
+                                                        onClick={() => router.visit(`/bookings/${booking.type}/${booking.id}/review`)}
                                                         className="inline-flex items-center justify-center px-4 py-1.5 text-sm text-white bg-amber-600 border border-amber-600 rounded hover:bg-amber-700"
                                                     >
                                                         <StarIcon className="h-4 w-4 mr-1" />
@@ -423,7 +423,7 @@ export default function MyBookings({ auth, bookings: dbBookings }) {
                             </button>
                             {selectedBooking.status === 'completed' && (
                                 <button
-                                    onClick={() => router.visit(`/bookings/${selectedBooking.id}/review`)}
+                                    onClick={() => router.visit(`/bookings/${selectedBooking.type}/${selectedBooking.id}/review`)}
                                     className="inline-flex items-center px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 font-medium"
                                 >
                                     <StarIcon className="h-5 w-5 mr-2" />
