@@ -6,6 +6,7 @@ use App\Models\FacilityBooking;
 use App\Models\ActivityBooking;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Inertia\Inertia;
 
 class BookingActionController extends Controller
 {
@@ -106,5 +107,44 @@ class BookingActionController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Modification request submitted successfully. Our team will review and contact you shortly.');
+    }
+
+    /**
+     * Show the review form for a completed booking.
+     */
+    public function showReviewForm(string $id)
+    {
+        // Try to find booking in both facility and activity bookings
+        $facilityBooking = FacilityBooking::with('facility')->find($id);
+        $activityBooking = ActivityBooking::with('activity')->find($id);
+
+        $booking = $facilityBooking ?? $activityBooking;
+
+        if (!$booking) {
+            return redirect()->route('my-bookings')->with('error', 'Booking not found.');
+        }
+
+        // Verify the booking belongs to the authenticated user
+        if ($booking->user_id !== auth()->id()) {
+            return redirect()->route('my-bookings')->with('error', 'Unauthorized action.');
+        }
+
+        // Check if booking is completed
+        if ($booking->status !== 'completed') {
+            return redirect()->route('my-bookings')->with('error', 'You can only review completed bookings.');
+        }
+
+        // Prepare booking data for the form
+        $bookingData = [
+            'id' => $booking->id,
+            'type' => $facilityBooking ? 'facility' : 'activity',
+            'facility' => $facilityBooking ? $booking->facility->name : $booking->activity->name,
+            'date' => $booking->booking_date,
+            'ref' => $booking->reference_number,
+        ];
+
+        return Inertia::render('FeedbackForm', [
+            'booking' => $bookingData
+        ]);
     }
 }

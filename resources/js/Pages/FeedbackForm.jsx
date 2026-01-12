@@ -38,17 +38,27 @@ export default function FeedbackForm({ auth, booking }) {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Here you would submit to your backend
-        console.log({
-            booking_id: bookingData.id,
-            rating,
-            comments,
-            aspects: selectedAspects
-        });
+        if (rating === 0) {
+            return;
+        }
 
-        // Show success message and redirect
-        alert('Thank you for your feedback!');
-        router.visit('/feedback');
+        // Submit feedback to backend
+        router.post('/feedback/submit', {
+            booking_id: bookingData.id,
+            booking_type: booking?.type || 'facility',
+            booking_reference: bookingData.ref,
+            overall_rating: rating,
+            comment: comments,
+            aspects: selectedAspects,
+            would_recommend: rating >= 4
+        }, {
+            onSuccess: () => {
+                router.visit('/my-bookings');
+            },
+            onError: (errors) => {
+                console.error('Feedback submission error:', errors);
+            }
+        });
     };
 
     return (

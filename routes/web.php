@@ -5,6 +5,7 @@ use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\FacilityBookingController;
 use App\Http\Controllers\ActivityBookingController;
 use App\Http\Controllers\BookingActionController;
+use App\Http\Controllers\FeedbackController as UserFeedbackController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\VRTourController;
@@ -231,7 +232,7 @@ Route::post('/language', [LanguageController::class, 'switch'])->name('language.
 Route::get('/api/equipment', [EquipmentController::class, 'index'])->name('equipment.index');
 Route::get('/api/equipment/{category}', [EquipmentController::class, 'getByCategory'])->name('equipment.by-category');
 
-// User Booking Actions (Cancel and Modify)
+// User Booking Actions (Cancel, Modify, and Review)
 Route::post('/bookings/{id}/cancel', [BookingActionController::class, 'cancel'])
     ->middleware(['auth', 'verified'])
     ->name('bookings.cancel');
@@ -240,6 +241,10 @@ Route::post('/bookings/{id}/request-modification', [BookingActionController::cla
     ->middleware(['auth', 'verified'])
     ->name('bookings.request-modification');
 
+Route::get('/bookings/{id}/review', [BookingActionController::class, 'showReviewForm'])
+    ->middleware(['auth', 'verified'])
+    ->name('bookings.review');
+
 Route::get('/report-issue', function () {
     return Inertia::render('ReportIssue');
 })->middleware(['auth', 'verified'])->name('report-issue');
@@ -247,6 +252,10 @@ Route::get('/report-issue', function () {
 Route::get('/feedback', function () {
     return Inertia::render('Feedback');
 })->middleware(['auth', 'verified'])->name('feedback');
+
+Route::post('/feedback/submit', [UserFeedbackController::class, 'submit'])
+    ->middleware(['auth', 'verified'])
+    ->name('feedback.submit');
 
 Route::get('/feedback/{id}', function ($id) {
     return Inertia::render('FeedbackForm', [
