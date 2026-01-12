@@ -19,6 +19,22 @@ class BookingController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($booking) {
+                // Convert payment receipt path to URL
+                $receiptUrl = null;
+                if ($booking->payment_receipt) {
+                    // Check if it's a full URL (including Cloudinary URLs)
+                    if (str_starts_with($booking->payment_receipt, 'http://') || str_starts_with($booking->payment_receipt, 'https://')) {
+                        // Already a full URL (Cloudinary or external)
+                        $receiptUrl = $booking->payment_receipt;
+                    } elseif (str_starts_with($booking->payment_receipt, '/storage/')) {
+                        // Already has /storage/ prefix
+                        $receiptUrl = $booking->payment_receipt;
+                    } else {
+                        // Convert to /storage/ URL
+                        $receiptUrl = '/storage/' . $booking->payment_receipt;
+                    }
+                }
+
                 return [
                     'id' => $booking->id,
                     'type' => 'facility',
@@ -33,7 +49,7 @@ class BookingController extends Controller
                     'total_amount' => $booking->total_amount,
                     'status' => $booking->status,
                     'payment_method' => $booking->payment_method,
-                    'payment_receipt' => $booking->payment_receipt,
+                    'payment_receipt' => $receiptUrl,
                     'payment_verified' => $booking->payment_verified,
                     'payment_verified_at' => $booking->payment_verified_at,
                     'payment_verification_notes' => $booking->payment_verification_notes,
@@ -46,6 +62,22 @@ class BookingController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($booking) {
+                // Convert payment receipt path to URL
+                $receiptUrl = null;
+                if ($booking->payment_receipt) {
+                    // Check if it's a full URL (including Cloudinary URLs)
+                    if (str_starts_with($booking->payment_receipt, 'http://') || str_starts_with($booking->payment_receipt, 'https://')) {
+                        // Already a full URL (Cloudinary or external)
+                        $receiptUrl = $booking->payment_receipt;
+                    } elseif (str_starts_with($booking->payment_receipt, '/storage/')) {
+                        // Already has /storage/ prefix
+                        $receiptUrl = $booking->payment_receipt;
+                    } else {
+                        // Convert to /storage/ URL
+                        $receiptUrl = '/storage/' . $booking->payment_receipt;
+                    }
+                }
+
                 return [
                     'id' => $booking->id,
                     'type' => 'activity',
@@ -60,7 +92,7 @@ class BookingController extends Controller
                     'total_amount' => $booking->total_amount,
                     'status' => $booking->status,
                     'payment_method' => $booking->payment_method,
-                    'payment_receipt' => $booking->payment_receipt,
+                    'payment_receipt' => $receiptUrl,
                     'payment_verified' => $booking->payment_verified,
                     'payment_verified_at' => $booking->payment_verified_at,
                     'payment_verification_notes' => $booking->payment_verification_notes,
