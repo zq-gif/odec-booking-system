@@ -30,6 +30,8 @@ export default function Settings({ auth, paymentQrCode }) {
             onSuccess: () => {
                 reset();
                 setPreview(null);
+                // Force a page reload to fetch the updated QR code
+                window.location.reload();
             },
         });
     };

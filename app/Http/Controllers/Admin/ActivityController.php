@@ -45,9 +45,8 @@ class ActivityController extends Controller
         // Handle image upload
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
-            $path = Storage::disk($disk)->putFile('activities', $request->file('image'));
-            $imagePath = ($disk === 'cloudinary') ? Storage::disk($disk)->url($path) : '/storage/' . $path;
+            $path = Storage::disk('public')->putFile('activities', $request->file('image'));
+            $imagePath = '/storage/' . $path;
         } elseif ($request->image_url) {
             $imagePath = $request->image_url;
         }
@@ -55,9 +54,8 @@ class ActivityController extends Controller
         // Handle VR tour image upload
         $vrTourImagePath = null;
         if ($request->hasFile('vr_tour_image')) {
-            $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
-            $path = Storage::disk($disk)->putFile('activities/vr', $request->file('vr_tour_image'));
-            $vrTourImagePath = ($disk === 'cloudinary') ? Storage::disk($disk)->url($path) : '/storage/' . $path;
+            $path = Storage::disk('public')->putFile('activities/vr', $request->file('vr_tour_image'));
+            $vrTourImagePath = '/storage/' . $path;
         } elseif ($request->vr_tour_image_url) {
             $vrTourImagePath = $request->vr_tour_image_url;
         }
@@ -103,13 +101,13 @@ class ActivityController extends Controller
         // Handle image upload
         $imagePath = $activity->image; // Keep existing image by default
         if ($request->hasFile('image')) {
-            $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
             // Delete old image if exists and is not a URL
-            if ($activity->image && !str_starts_with($activity->image, 'http') && !str_starts_with($activity->image, '/storage/')) {
-                Storage::disk($disk)->delete($activity->image);
+            if ($activity->image && !str_starts_with($activity->image, 'http') && str_starts_with($activity->image, '/storage/')) {
+                $oldPath = str_replace('/storage/', '', $activity->image);
+                Storage::disk('public')->delete($oldPath);
             }
-            $path = Storage::disk($disk)->putFile('activities', $request->file('image'));
-            $imagePath = ($disk === 'cloudinary') ? Storage::disk($disk)->url($path) : '/storage/' . $path;
+            $path = Storage::disk('public')->putFile('activities', $request->file('image'));
+            $imagePath = '/storage/' . $path;
         } elseif ($request->filled('image_url')) {
             $imagePath = $request->image_url;
         }
@@ -117,13 +115,13 @@ class ActivityController extends Controller
         // Handle VR tour image upload
         $vrTourImagePath = $activity->vr_tour_image; // Keep existing VR tour image by default
         if ($request->hasFile('vr_tour_image')) {
-            $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
             // Delete old VR tour image if exists and is not a URL
-            if ($activity->vr_tour_image && !str_starts_with($activity->vr_tour_image, 'http') && !str_starts_with($activity->vr_tour_image, '/storage/')) {
-                Storage::disk($disk)->delete($activity->vr_tour_image);
+            if ($activity->vr_tour_image && !str_starts_with($activity->vr_tour_image, 'http') && str_starts_with($activity->vr_tour_image, '/storage/')) {
+                $oldPath = str_replace('/storage/', '', $activity->vr_tour_image);
+                Storage::disk('public')->delete($oldPath);
             }
-            $path = Storage::disk($disk)->putFile('activities/vr', $request->file('vr_tour_image'));
-            $vrTourImagePath = ($disk === 'cloudinary') ? Storage::disk($disk)->url($path) : '/storage/' . $path;
+            $path = Storage::disk('public')->putFile('activities/vr', $request->file('vr_tour_image'));
+            $vrTourImagePath = '/storage/' . $path;
         } elseif ($request->filled('vr_tour_image_url')) {
             $vrTourImagePath = $request->vr_tour_image_url;
         }

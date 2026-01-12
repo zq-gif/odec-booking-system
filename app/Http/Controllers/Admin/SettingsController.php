@@ -30,22 +30,16 @@ class SettingsController extends Controller
             $file = $request->file('qr_code');
             $filename = 'payment_qr_' . time() . '.' . $file->getClientOriginalExtension();
 
-            // Use Cloudinary in production, local storage in development
-            $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
-
             // Delete old QR code if exists
             $oldPath = Setting::get('payment_qr_code');
-            if ($oldPath && !str_starts_with($oldPath, 'http')) {
-                // Remove /storage/ prefix if it exists for deletion
-                $pathToDelete = str_starts_with($oldPath, '/storage/') ? substr($oldPath, 9) : $oldPath;
-                Storage::disk($disk)->delete($pathToDelete);
+            if ($oldPath && !str_starts_with($oldPath, 'http') && str_starts_with($oldPath, '/storage/')) {
+                $pathToDelete = str_replace('/storage/', '', $oldPath);
+                Storage::disk('public')->delete($pathToDelete);
             }
 
             // Upload new QR code
-            $path = Storage::disk($disk)->putFileAs('qr_codes', $file, $filename);
-
-            // Get full URL for Cloudinary
-            $qrCodePath = ($disk === 'cloudinary') ? Storage::disk($disk)->url($path) : '/storage/' . $path;
+            $path = Storage::disk('public')->putFileAs('qr_codes', $file, $filename);
+            $qrCodePath = '/storage/' . $path;
 
             // Update setting
             Setting::set('payment_qr_code', $qrCodePath);

@@ -67,10 +67,8 @@ class FacilityBookingController extends Controller
         if ($request->hasFile('payment_receipt')) {
             $file = $request->file('payment_receipt');
             $filename = $referenceNumber . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $disk = env('APP_ENV') === 'production' ? 'cloudinary' : 'public';
-            $path = Storage::disk($disk)->putFileAs('payment_receipts', $file, $filename);
-            // Get full URL for Cloudinary
-            $receiptPath = ($disk === 'cloudinary') ? Storage::disk($disk)->url($path) : $path;
+            $path = Storage::disk('public')->putFileAs('payment_receipts', $file, $filename);
+            $receiptPath = $path;
         }
 
         // Create booking
