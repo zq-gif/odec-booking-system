@@ -13,7 +13,7 @@ The admin BookingController was passing the raw database path to the frontend wi
 
 ## Files Modified
 
-### [app/Http/Controllers/Admin/BookingController.php](app/Http/Controllers/Admin/BookingController.php)
+### 1. [app/Http/Controllers/Admin/BookingController.php](app/Http/Controllers/Admin/BookingController.php) (Backend)
 
 #### Changes Made:
 1. Updated facility bookings mapping (lines 23-36):
@@ -27,6 +27,23 @@ The admin BookingController was passing the raw database path to the frontend wi
    - Same conversion logic as facility bookings
 
 3. No additional imports needed - uses only built-in PHP functions
+
+### 2. [resources/js/Pages/Admin/Bookings.jsx](resources/js/Pages/Admin/Bookings.jsx) (Frontend)
+
+#### Changes Made:
+1. **Line 68**: Removed `/storage/` prefix from download link
+   - Changed from: `link.href = \`/storage/${receiptUrl}\`;`
+   - Changed to: `link.href = receiptUrl;`
+
+2. **Line 455**: Removed `/storage/` prefix from image src
+   - Changed from: `src={\`/storage/${selectedReceipt.receiptUrl}\`}`
+   - Changed to: `src={selectedReceipt.receiptUrl}`
+
+3. **Line 486**: Removed `/storage/` prefix from "Open in New Tab" link
+   - Changed from: `href={\`/storage/${selectedReceipt.receiptUrl}\`}`
+   - Changed to: `href={selectedReceipt.receiptUrl}`
+
+**Reason**: Backend now returns complete URLs with `/storage/` prefix already included, so frontend should not add it again.
 
 ## How It Works
 
@@ -186,8 +203,9 @@ When deploying this fix to Railway:
 ✅ **Cloudinary support**: Legacy Cloudinary URLs continue to work
 
 **Date Fixed**: January 12, 2026
-**Files Changed**: 1 controller file
-**Lines Added**: ~30 lines of path conversion logic
+**Files Changed**: 2 files (1 backend controller, 1 frontend component)
+**Backend Lines**: ~30 lines of path conversion logic
+**Frontend Lines**: 3 lines (removed double prefix)
 **Database Changes**: None required
 
 ### Important Note About Legacy Data
@@ -199,4 +217,5 @@ If you have existing bookings with Cloudinary URLs in the database (like `https:
 
 - [app/Http/Controllers/FacilityBookingController.php](app/Http/Controllers/FacilityBookingController.php) - Stores receipt paths
 - [app/Http/Controllers/ActivityBookingController.php](app/Http/Controllers/ActivityBookingController.php) - Stores receipt paths
-- [app/Http/Controllers/Admin/BookingController.php](app/Http/Controllers/Admin/BookingController.php) - **FIXED** - Converts paths to URLs
+- [app/Http/Controllers/Admin/BookingController.php](app/Http/Controllers/Admin/BookingController.php) - **FIXED (Backend)** - Converts paths to URLs
+- [resources/js/Pages/Admin/Bookings.jsx](resources/js/Pages/Admin/Bookings.jsx) - **FIXED (Frontend)** - Uses URLs directly
