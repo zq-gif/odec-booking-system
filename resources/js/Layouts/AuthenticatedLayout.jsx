@@ -53,8 +53,6 @@ export default function AuthenticatedLayout({ header, children }) {
     // Regular user navigation
     const userNavigation = [
         { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, current: route().current('dashboard') },
-        { name: 'Facilities', href: '/facilities', icon: BuildingOfficeIcon, current: route().current('facilities') },
-        { name: 'VR Tour', href: '/vr-tour', icon: DevicePhoneMobileIcon, current: route().current('vr-tour') },
         { name: 'Book Facility', href: '/book-facility', icon: CalendarIcon, current: route().current('book-facility') },
         { name: 'Book Activity', href: '/book-activity', icon: SparklesIcon, current: route().current('book-activity') },
         { name: 'My Bookings', href: '/my-bookings', icon: ClipboardDocumentListIcon, current: route().current('my-bookings') },
