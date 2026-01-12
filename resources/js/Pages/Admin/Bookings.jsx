@@ -65,7 +65,7 @@ export default function Bookings({ auth, bookings }) {
     const handleDownloadReceipt = (receiptUrl, bookingRef) => {
         // Create a temporary anchor element to trigger download
         const link = document.createElement('a');
-        link.href = `/storage/${receiptUrl}`;
+        link.href = receiptUrl; // Backend already provides full URL with /storage/ prefix
         link.download = `receipt_${bookingRef}.${receiptUrl.split('.').pop()}`;
         document.body.appendChild(link);
         link.click();
@@ -452,7 +452,7 @@ export default function Bookings({ auth, bookings }) {
                                     <p className="text-sm font-medium text-gray-700 mb-3">Receipt Image</p>
                                     {selectedReceipt.receiptUrl ? (
                                         <img
-                                            src={`/storage/${selectedReceipt.receiptUrl}`}
+                                            src={selectedReceipt.receiptUrl}
                                             alt="Payment Receipt"
                                             className="max-w-full h-auto mx-auto rounded shadow-lg"
                                             style={{ maxHeight: '500px' }}
@@ -483,7 +483,7 @@ export default function Bookings({ auth, bookings }) {
                                             Download
                                         </button>
                                         <a
-                                            href={`/storage/${selectedReceipt.receiptUrl}`}
+                                            href={selectedReceipt.receiptUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
