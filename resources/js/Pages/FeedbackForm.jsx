@@ -63,31 +63,23 @@ export default function FeedbackForm({ auth, booking }) {
 
     return (
         <AuthenticatedLayout>
-            <Head title={`Feedback for ${bookingData.facility}`} />
+            <Head title={`Review for ${bookingData.facility}`} />
 
             <div className="py-8">
                 <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="mb-6">
-                        <h1 className="text-2xl font-bold text-gray-900">Feedback</h1>
+                        <h1 className="text-2xl font-bold text-gray-900">Write Review</h1>
                         <p className="mt-1 text-sm text-gray-600">Share your experience with ODEC facilities</p>
                     </div>
 
                     {/* Main Form */}
                     <div className="bg-white rounded-lg shadow-sm">
-                        {/* Feedback Header */}
+                        {/* Review Header */}
                         <div className="p-6 border-b border-gray-200">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-lg font-semibold text-gray-900">
-                                    Feedback for {bookingData.facility}
-                                </h2>
-                                <button
-                                    onClick={() => router.visit('/feedback')}
-                                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                                >
-                                    Change Selection
-                                </button>
-                            </div>
+                            <h2 className="text-lg font-semibold text-gray-900">
+                                Review for {bookingData.facility}
+                            </h2>
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -178,7 +170,7 @@ export default function FeedbackForm({ auth, booking }) {
                                     className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                                 >
                                     <PaperAirplaneIcon className="h-5 w-5 mr-2" />
-                                    Submit Feedback
+                                    Submit Review
                                 </button>
                             </div>
                         </form>
