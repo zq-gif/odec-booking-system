@@ -56,7 +56,6 @@ export default function AuthenticatedLayout({ header, children }) {
         { name: 'Book Facility', href: '/book-facility', icon: CalendarIcon, current: route().current('book-facility') },
         { name: 'Book Activity', href: '/book-activity', icon: SparklesIcon, current: route().current('book-activity') },
         { name: 'My Bookings', href: '/my-bookings', icon: ClipboardDocumentListIcon, current: route().current('my-bookings') },
-        { name: 'Feedback', href: '/feedback', icon: ChatBubbleLeftRightIcon, current: route().current('feedback') },
         { name: 'Report Issue', href: '/report-issue', icon: ExclamationCircleIcon, current: route().current('report-issue') },
     ];
 
