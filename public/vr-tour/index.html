@@ -698,11 +698,11 @@
             <!-- Map Button - Click to show beach map -->
             <a-entity
                 id="map-button"
-                position="-4 2.5 5"
-                rotation="0 45 0">
+                position="0 3 -6"
+                rotation="0 0 0">
                 <!-- Button background circle -->
                 <a-circle
-                    radius="0.6"
+                    radius="0.8"
                     color="#FF9800"
                     opacity="0.95"
                     class="clickable"
@@ -710,27 +710,47 @@
                     <a-animation
                         attribute="scale"
                         from="1 1 1"
-                        to="1.15 1.15 1.15"
+                        to="1.2 1.2 1.2"
                         direction="alternate"
-                        dur="1000"
+                        dur="800"
                         repeat="indefinite"
                         easing="ease-in-out-sine">
                     </a-animation>
                 </a-circle>
-                <!-- Map icon -->
-                <a-text
-                    value="🗺️"
-                    align="center"
-                    position="0 0.1 0.02"
-                    scale="3 3 3"
-                    color="#FFFFFF"
+                <!-- Outer glow ring -->
+                <a-ring
+                    radius-inner="0.85"
+                    radius-outer="1.0"
+                    color="#FFC107"
+                    opacity="0.7"
                     class="clickable"
                     data-action="showMap">
-                </a-text>
+                    <a-animation
+                        attribute="opacity"
+                        from="0.7"
+                        to="0.3"
+                        direction="alternate"
+                        dur="800"
+                        repeat="indefinite"
+                        easing="ease-in-out-sine">
+                    </a-animation>
+                </a-ring>
+                <!-- Map icon -->
                 <a-text
                     value="MAP"
                     align="center"
-                    position="0 -0.25 0.02"
+                    position="0 0 0.02"
+                    scale="1.5 1.5 1.5"
+                    color="#FFFFFF"
+                    font="mozillavr"
+                    class="clickable"
+                    data-action="showMap">
+                </a-text>
+                <!-- Label below -->
+                <a-text
+                    value="Click to view"
+                    align="center"
+                    position="0 -1.2 0"
                     scale="0.8 0.8 0.8"
                     color="#FFFFFF"
                     class="clickable"

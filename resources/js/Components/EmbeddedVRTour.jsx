@@ -36,24 +36,27 @@ export default function EmbeddedVRTour({ onClose, openInNewWindow = false }) {
 
     // Otherwise, show embedded iframe
     return (
-        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+        <div className="fixed inset-0 z-[100] bg-black flex items-center justify-center">
             {/* Close Button */}
             <button
                 onClick={onClose}
-                className="absolute top-4 right-4 z-50 p-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full transition-all group"
+                className="absolute top-4 right-4 z-[110] p-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full transition-all group"
                 title="Close VR Tour"
             >
                 <XMarkIcon className="h-8 w-8 text-white group-hover:scale-110 transition-transform" />
             </button>
 
             {/* Instructions Overlay */}
-            <div className="absolute top-4 left-4 z-50 bg-black/60 backdrop-blur-sm text-white p-4 rounded-lg max-w-xs">
+            <div className="absolute top-4 left-4 z-[110] bg-black/60 backdrop-blur-sm text-white p-4 rounded-lg max-w-xs">
                 <h3 className="font-bold mb-2">VR Tour Controls</h3>
                 <ul className="text-sm space-y-1">
                     <li>🖱️ <strong>Desktop:</strong> Click and drag to look around</li>
                     <li>📱 <strong>Mobile:</strong> Move your phone to explore</li>
                     <li>⌨️ <strong>Keyboard:</strong> Arrow keys or WASD to navigate</li>
                     <li>🔍 <strong>Zoom:</strong> Scroll wheel or pinch</li>
+                    <li>🗺️ <strong>Map:</strong> Press M in Main 3 scene</li>
+                    <li>🟢 <strong>Green ring:</strong> Go forward</li>
+                    <li>🔵 <strong>Blue ring:</strong> Go back</li>
                 </ul>
             </div>
 
