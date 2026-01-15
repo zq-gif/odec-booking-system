@@ -17,7 +17,8 @@ import {
     ChevronDownIcon,
     PencilSquareIcon,
     TrashIcon,
-    StarIcon
+    StarIcon,
+    EyeIcon
 } from '@heroicons/react/24/outline';
 
 export default function MyBookings({ auth, bookings: dbBookings }) {
@@ -65,7 +66,8 @@ export default function MyBookings({ auth, bookings: dbBookings }) {
         attendees: booking.type === 'activity' ? (booking.number_of_participants || 'N/A') : (booking.number_of_guests || 'N/A'),
         bookedOn: new Date(booking.created_at).toLocaleDateString(),
         totalAmount: parseFloat(booking.total_amount),
-        paymentMethod: booking.payment_method || 'N/A'
+        paymentMethod: booking.payment_method || 'N/A',
+        hasReview: booking.has_review || false
     }));
 
     const statusFilters = ['All', 'Confirmed', 'Pending', 'Completed', 'Cancelled'];
@@ -254,13 +256,23 @@ export default function MyBookings({ auth, bookings: dbBookings }) {
                                                     View Full Details
                                                 </button>
                                                 {booking.status === 'completed' && (
-                                                    <button
-                                                        onClick={() => router.visit(`/bookings/${booking.type}/${booking.id}/review`)}
-                                                        className="inline-flex items-center justify-center px-4 py-1.5 text-sm text-white bg-amber-600 border border-amber-600 rounded hover:bg-amber-700"
-                                                    >
-                                                        <StarIcon className="h-4 w-4 mr-1" />
-                                                        Write Review
-                                                    </button>
+                                                    booking.hasReview ? (
+                                                        <button
+                                                            onClick={() => router.visit(`/bookings/${booking.type}/${booking.id}/view-review`)}
+                                                            className="inline-flex items-center justify-center px-4 py-1.5 text-sm text-white bg-green-600 border border-green-600 rounded hover:bg-green-700"
+                                                        >
+                                                            <EyeIcon className="h-4 w-4 mr-1" />
+                                                            View Review
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => router.visit(`/bookings/${booking.type}/${booking.id}/review`)}
+                                                            className="inline-flex items-center justify-center px-4 py-1.5 text-sm text-white bg-amber-600 border border-amber-600 rounded hover:bg-amber-700"
+                                                        >
+                                                            <StarIcon className="h-4 w-4 mr-1" />
+                                                            Write Review
+                                                        </button>
+                                                    )
                                                 )}
                                             </div>
                                         </div>
@@ -422,13 +434,23 @@ export default function MyBookings({ auth, bookings: dbBookings }) {
                                 Close
                             </button>
                             {selectedBooking.status === 'completed' && (
-                                <button
-                                    onClick={() => router.visit(`/bookings/${selectedBooking.type}/${selectedBooking.id}/review`)}
-                                    className="inline-flex items-center px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 font-medium"
-                                >
-                                    <StarIcon className="h-5 w-5 mr-2" />
-                                    Write Review
-                                </button>
+                                selectedBooking.hasReview ? (
+                                    <button
+                                        onClick={() => router.visit(`/bookings/${selectedBooking.type}/${selectedBooking.id}/view-review`)}
+                                        className="inline-flex items-center px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
+                                    >
+                                        <EyeIcon className="h-5 w-5 mr-2" />
+                                        View Review
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => router.visit(`/bookings/${selectedBooking.type}/${selectedBooking.id}/review`)}
+                                        className="inline-flex items-center px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 font-medium"
+                                    >
+                                        <StarIcon className="h-5 w-5 mr-2" />
+                                        Write Review
+                                    </button>
+                                )
                             )}
                             {selectedBooking.status === 'confirmed' && (
                                 <>

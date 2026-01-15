@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Feedback;
+use App\Models\FacilityBooking;
+use App\Models\ActivityBooking;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class FeedbackController extends Controller
 {
@@ -34,5 +37,52 @@ class FeedbackController extends Controller
         ]);
 
         return redirect()->route('my-bookings')->with('success', 'Thank you for your review! Your feedback has been submitted.');
+    }
+
+    /**
+     * View a submitted review for a booking.
+     */
+    public function viewReview(string $type, string $id)
+    {
+        // Find booking based on type
+        if ($type === 'facility') {
+            $booking = FacilityBooking::with('facility')->find($id);
+            $itemName = $booking?->facility->name;
+        } else {
+            $booking = ActivityBooking::with('activity')->find($id);
+            $itemName = $booking?->activity->name;
+        }
+
+        if (!$booking) {
+            return redirect()->route('my-bookings')->with('error', 'Booking not found.');
+        }
+
+        // Verify the booking belongs to the authenticated user
+        if ($booking->user_id !== auth()->id()) {
+            return redirect()->route('my-bookings')->with('error', 'Unauthorized action.');
+        }
+
+        // Find the review for this booking
+        $review = Feedback::where('user_id', auth()->id())
+            ->where('booking_reference', $booking->reference_number)
+            ->first();
+
+        if (!$review) {
+            return redirect()->route('my-bookings')->with('error', 'Review not found.');
+        }
+
+        // Prepare booking data for the view
+        $bookingData = [
+            'id' => $booking->id,
+            'type' => $type,
+            'facility' => $itemName,
+            'date' => $booking->booking_date,
+            'ref' => $booking->reference_number,
+        ];
+
+        return Inertia::render('ViewReview', [
+            'review' => $review,
+            'booking' => $bookingData
+        ]);
     }
 }

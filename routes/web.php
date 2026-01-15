@@ -168,12 +168,18 @@ Route::get('/api/vr-tour-spots', [VRTourController::class, 'index'])
     ->name('vr-tour-spots.index');
 
 Route::get('/my-bookings', function () {
+    // Get all reviews for this user (by booking reference)
+    $userReviews = \App\Models\Feedback::where('user_id', auth()->id())
+        ->pluck('booking_reference')
+        ->toArray();
+
     // Get facility bookings
     $facilityBookings = \App\Models\FacilityBooking::with('facility')
         ->where('user_id', auth()->id())
         ->orderBy('created_at', 'desc')
         ->get()
-        ->map(function ($booking) {
+        ->map(function ($booking) use ($userReviews) {
+            $hasReview = in_array($booking->reference_number, $userReviews);
             return [
                 'id' => $booking->id,
                 'type' => 'facility',
@@ -189,6 +195,7 @@ Route::get('/my-bookings', function () {
                 'purpose' => $booking->purpose,
                 'phone_number' => $booking->phone_number,
                 'number_of_guests' => $booking->number_of_guests,
+                'has_review' => $hasReview,
             ];
         });
 
@@ -197,7 +204,8 @@ Route::get('/my-bookings', function () {
         ->where('user_id', auth()->id())
         ->orderBy('created_at', 'desc')
         ->get()
-        ->map(function ($booking) {
+        ->map(function ($booking) use ($userReviews) {
+            $hasReview = in_array($booking->reference_number, $userReviews);
             return [
                 'id' => $booking->id,
                 'type' => 'activity',
@@ -212,6 +220,7 @@ Route::get('/my-bookings', function () {
                 'created_at' => $booking->created_at,
                 'phone_number' => $booking->phone_number,
                 'number_of_participants' => $booking->number_of_participants,
+                'has_review' => $hasReview,
             ];
         });
 
@@ -244,6 +253,10 @@ Route::post('/bookings/{id}/request-modification', [BookingActionController::cla
 Route::get('/bookings/{type}/{id}/review', [BookingActionController::class, 'showReviewForm'])
     ->middleware(['auth', 'verified'])
     ->name('bookings.review');
+
+Route::get('/bookings/{type}/{id}/view-review', [UserFeedbackController::class, 'viewReview'])
+    ->middleware(['auth', 'verified'])
+    ->name('bookings.view-review');
 
 Route::get('/report-issue', function () {
     return Inertia::render('ReportIssue');
