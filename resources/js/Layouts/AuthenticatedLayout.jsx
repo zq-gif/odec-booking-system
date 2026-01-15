@@ -34,21 +34,49 @@ export default function AuthenticatedLayout({ header, children }) {
     // Check if user is admin
     const isAdmin = user.role === 'admin';
 
-    // Admin navigation
-    const adminNavigation = [
-        { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon, current: route().current('admin.dashboard') },
-        { name: 'Manage Users', href: '/admin/users', icon: UsersIcon, current: route().current('admin.users') },
-        { name: 'Manage Facilities', href: '/admin/facilities', icon: BuildingOfficeIcon, current: route().current('admin.facilities') },
-        { name: 'Manage Activities', href: '/admin/activities', icon: SparklesIcon, current: route().current('admin.activities') },
-        { name: 'View Bookings', href: '/admin/bookings', icon: CalendarIcon, current: route().current('admin.bookings') },
-        { name: 'Manage Staff', href: '/admin/staff', icon: ClipboardDocumentListIcon, current: route().current('admin.staff') },
-        { name: 'Announcements', href: '/admin/announcements', icon: MegaphoneIcon, current: route().current('admin.announcements.*') },
-        { name: 'Reports', href: '/admin/reports', icon: ChartBarIcon, current: route().current('admin.reports') },
-        { name: 'Maintenance', href: '/admin/maintenance', icon: WrenchScrewdriverIcon, current: route().current('admin.maintenance') },
-        { name: 'Issue Reports', href: '/admin/issues', icon: ExclamationTriangleIcon, current: route().current('admin.issues') },
-        { name: 'Feedback', href: '/admin/feedback', icon: ChatBubbleLeftRightIcon, current: route().current('admin.feedback') },
-        { name: 'QR Code', href: '/admin/settings', icon: Cog6ToothIcon, current: route().current('admin.settings') },
+    // Admin navigation - organized by sections
+    const adminNavSections = [
+        {
+            title: 'Overview',
+            items: [
+                { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon, current: route().current('admin.dashboard') },
+            ]
+        },
+        {
+            title: 'Booking Management',
+            items: [
+                { name: 'Bookings', href: '/admin/bookings', icon: CalendarIcon, current: route().current('admin.bookings') },
+                { name: 'Facilities', href: '/admin/facilities', icon: BuildingOfficeIcon, current: route().current('admin.facilities') },
+                { name: 'Activities', href: '/admin/activities', icon: SparklesIcon, current: route().current('admin.activities') },
+            ]
+        },
+        {
+            title: 'People',
+            items: [
+                { name: 'Users', href: '/admin/users', icon: UsersIcon, current: route().current('admin.users') },
+                { name: 'Staff', href: '/admin/staff', icon: ClipboardDocumentListIcon, current: route().current('admin.staff') },
+            ]
+        },
+        {
+            title: 'Reports & Feedback',
+            items: [
+                { name: 'Reports', href: '/admin/reports', icon: ChartBarIcon, current: route().current('admin.reports') },
+                { name: 'Reviews', href: '/admin/feedback', icon: ChatBubbleLeftRightIcon, current: route().current('admin.feedback') },
+                { name: 'Issues', href: '/admin/issues', icon: ExclamationTriangleIcon, current: route().current('admin.issues') },
+            ]
+        },
+        {
+            title: 'System',
+            items: [
+                { name: 'Announcements', href: '/admin/announcements', icon: MegaphoneIcon, current: route().current('admin.announcements.*') },
+                { name: 'Maintenance', href: '/admin/maintenance', icon: WrenchScrewdriverIcon, current: route().current('admin.maintenance') },
+                { name: 'QR Code', href: '/admin/settings', icon: Cog6ToothIcon, current: route().current('admin.settings') },
+            ]
+        },
     ];
+
+    // Flat admin navigation for mobile menu
+    const adminNavigation = adminNavSections.flatMap(section => section.items);
 
     // Regular user navigation
     const userNavigation = [
@@ -84,20 +112,29 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <XMarkIcon className="h-6 w-6" />
                             </button>
                         </div>
-                        <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto max-h-[calc(100vh-200px)]">
-                            {adminNavigation.map((item) => (
-                                <Link
-                                    key={item.name}
-                                    href={item.href}
-                                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg ${
-                                        item.current
-                                            ? 'bg-gradient-to-r from-blue-100 to-orange-100 text-orange-600'
-                                            : 'text-gray-700 hover:bg-gray-100'
-                                    }`}
-                                >
-                                    <item.icon className="mr-3 h-5 w-5" />
-                                    {item.name}
-                                </Link>
+                        <nav className="flex-1 px-3 py-4 overflow-y-auto max-h-[calc(100vh-200px)]">
+                            {adminNavSections.map((section, sectionIdx) => (
+                                <div key={section.title} className={sectionIdx > 0 ? 'mt-3' : ''}>
+                                    <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                                        {section.title}
+                                    </p>
+                                    <div className="space-y-0.5">
+                                        {section.items.map((item) => (
+                                            <Link
+                                                key={item.name}
+                                                href={item.href}
+                                                className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg ${
+                                                    item.current
+                                                        ? 'bg-gradient-to-r from-blue-100 to-orange-100 text-orange-600'
+                                                        : 'text-gray-600 hover:bg-gray-50'
+                                                }`}
+                                            >
+                                                <item.icon className={`mr-3 h-5 w-5 ${item.current ? 'text-orange-600' : 'text-gray-400'}`} />
+                                                {item.name}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
                             ))}
                         </nav>
                         <div className="border-t border-gray-200 p-4">
@@ -146,23 +183,29 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         {/* Navigation */}
-                        <nav className="flex-1 space-y-1 px-3 py-4">
-                            <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                                Admin Navigation
-                            </p>
-                            {adminNavigation.map((item) => (
-                                <Link
-                                    key={item.name}
-                                    href={item.href}
-                                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                        item.current
-                                            ? 'bg-gradient-to-r from-blue-100 to-orange-100 text-orange-600 shadow-sm'
-                                            : 'text-gray-700 hover:bg-gray-100'
-                                    }`}
-                                >
-                                    <item.icon className="mr-3 h-5 w-5" />
-                                    {item.name}
-                                </Link>
+                        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+                            {adminNavSections.map((section, sectionIdx) => (
+                                <div key={section.title} className={sectionIdx > 0 ? 'mt-4' : ''}>
+                                    <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                                        {section.title}
+                                    </p>
+                                    <div className="space-y-0.5">
+                                        {section.items.map((item) => (
+                                            <Link
+                                                key={item.name}
+                                                href={item.href}
+                                                className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                                    item.current
+                                                        ? 'bg-gradient-to-r from-blue-100 to-orange-100 text-orange-600 shadow-sm'
+                                                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                                }`}
+                                            >
+                                                <item.icon className={`mr-3 h-5 w-5 ${item.current ? 'text-orange-600' : 'text-gray-400'}`} />
+                                                {item.name}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
                             ))}
                         </nav>
 
