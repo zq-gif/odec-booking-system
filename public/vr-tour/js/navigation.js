@@ -39,13 +39,21 @@ document.addEventListener('DOMContentLoaded', function() {
             element.addEventListener('click', function() {
                 const roomId = this.getAttribute('data-room');
                 const infoText = this.getAttribute('data-info');
+                const action = this.getAttribute('data-action');
 
                 // Debug logging
                 console.error('🖱️ CLICKED element:', this.tagName);
                 console.error('📍 Position:', this.getAttribute('position'));
                 console.error('🎯 Target room:', roomId);
+                console.error('🎬 Action:', action);
 
-                if (roomId) {
+                if (action === 'showMap') {
+                    // Show the map panel
+                    showMap();
+                } else if (action === 'closeMap') {
+                    // Close the map panel
+                    closeMap();
+                } else if (roomId) {
                     // Navigate to a different room
                     navigateToRoom(roomId);
                 } else if (infoText) {
@@ -138,6 +146,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 
+    // Function to show the beach map panel
+    function showMap() {
+        console.log('🗺️ Opening map panel');
+        const mapPanel = document.querySelector('#map-panel');
+        if (mapPanel) {
+            mapPanel.setAttribute('visible', 'true');
+            // Add fade-in animation
+            mapPanel.setAttribute('animation', {
+                property: 'scale',
+                from: '0.1 0.1 0.1',
+                to: '1 1 1',
+                dur: 300,
+                easing: 'easeOutBack'
+            });
+        }
+    }
+
+    // Function to close/hide the beach map panel
+    function closeMap() {
+        console.log('🗺️ Closing map panel');
+        const mapPanel = document.querySelector('#map-panel');
+        if (mapPanel) {
+            // Add fade-out animation
+            mapPanel.setAttribute('animation', {
+                property: 'scale',
+                from: '1 1 1',
+                to: '0.1 0.1 0.1',
+                dur: 200,
+                easing: 'easeInBack'
+            });
+            // Hide after animation
+            setTimeout(() => {
+                mapPanel.setAttribute('visible', 'false');
+            }, 200);
+        }
+    }
+
     // Keyboard navigation for direct scene access
     document.addEventListener('keydown', function(event) {
         const key = event.key.toLowerCase();
@@ -164,11 +209,26 @@ document.addEventListener('DOMContentLoaded', function() {
             navigateToRoom(keyMap[key]);
             console.error('⌨️ Keyboard shortcut: ' + key + ' → ' + keyMap[key]);
         }
+
+        // Map toggle with 'M' key (only works in Main 3 scene)
+        if (key === 'm' && currentRoom === 'main3') {
+            const mapPanel = document.querySelector('#map-panel');
+            if (mapPanel) {
+                const isVisible = mapPanel.getAttribute('visible') === 'true';
+                if (isVisible) {
+                    closeMap();
+                } else {
+                    showMap();
+                }
+                console.error('⌨️ Map toggled with M key');
+            }
+        }
     });
 
     console.error('✅ Virtual Tour initialized successfully!');
     console.error('⌨️ Keyboard shortcuts enabled:');
     console.error('   1-9, 0, Q, W, E, R: Direct scene access');
+    console.error('   M: Toggle map (in Main 3 scene)');
     console.log('Tour flow (14 scenes): Jetty → Entrance → Parking 2 → Parking 1 → Main 5-1 → Platform 1-2 → Campsite 3-1');
     }); // Close scene.addEventListener('loaded')
 }); // Close DOMContentLoaded

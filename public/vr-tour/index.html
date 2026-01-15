@@ -20,6 +20,8 @@
             <!-- Info images for parking 1 -->
             <img id="feeInfo" src="/vr-tour/assets/images/fee-info.png" crossorigin="anonymous">
             <img id="parkInfo" src="/vr-tour/assets/images/park-info.png" crossorigin="anonymous">
+            <!-- Beach Map image for Main 3 -->
+            <img id="beachMap" src="/vr-tour/assets/images/beach-map.jpg" crossorigin="anonymous">
             <!-- 360 Images for the tour - Using your existing Scenes -->
             <img id="entrance" src="/vr-tour/Scenes/entrance.jpg" crossorigin="anonymous">
             <img id="parking1" src="/vr-tour/Scenes/parking 1.jpg" crossorigin="anonymous">
@@ -693,6 +695,101 @@
 
         <!-- Scene 7: Main 3 - Ring hotspots to Main 2 and Main 4 -->
         <a-entity id="nav-main3" visible="false">
+            <!-- Map Button - Click to show beach map -->
+            <a-entity
+                id="map-button"
+                position="-4 2.5 5"
+                rotation="0 45 0">
+                <!-- Button background circle -->
+                <a-circle
+                    radius="0.6"
+                    color="#FF9800"
+                    opacity="0.95"
+                    class="clickable"
+                    data-action="showMap">
+                    <a-animation
+                        attribute="scale"
+                        from="1 1 1"
+                        to="1.15 1.15 1.15"
+                        direction="alternate"
+                        dur="1000"
+                        repeat="indefinite"
+                        easing="ease-in-out-sine">
+                    </a-animation>
+                </a-circle>
+                <!-- Map icon -->
+                <a-text
+                    value="🗺️"
+                    align="center"
+                    position="0 0.1 0.02"
+                    scale="3 3 3"
+                    color="#FFFFFF"
+                    class="clickable"
+                    data-action="showMap">
+                </a-text>
+                <a-text
+                    value="MAP"
+                    align="center"
+                    position="0 -0.25 0.02"
+                    scale="0.8 0.8 0.8"
+                    color="#FFFFFF"
+                    class="clickable"
+                    data-action="showMap">
+                </a-text>
+            </a-entity>
+
+            <!-- Map Display Panel (hidden by default) -->
+            <a-entity id="map-panel" visible="false" position="0 2.5 -4" rotation="0 0 0">
+                <!-- Dark background -->
+                <a-plane
+                    width="8"
+                    height="8"
+                    color="#000000"
+                    opacity="0.85"
+                    position="0 0 -0.05">
+                </a-plane>
+                <!-- Map image -->
+                <a-image
+                    src="#beachMap"
+                    width="7"
+                    height="7"
+                    opacity="1">
+                </a-image>
+                <!-- Title -->
+                <a-text
+                    value="UMS BEACH CLUB MAP"
+                    align="center"
+                    position="0 4 0.01"
+                    scale="1.5 1.5 1.5"
+                    color="#FF9800">
+                </a-text>
+                <!-- Close button -->
+                <a-circle
+                    position="3.8 3.8 0.02"
+                    radius="0.4"
+                    color="#F44336"
+                    opacity="0.95"
+                    class="clickable"
+                    data-action="closeMap">
+                    <a-text
+                        value="X"
+                        align="center"
+                        position="0 0 0.01"
+                        scale="1.5 1.5 1.5"
+                        color="#FFFFFF">
+                    </a-text>
+                    <a-animation
+                        attribute="scale"
+                        from="1 1 1"
+                        to="1.1 1.1 1.1"
+                        direction="alternate"
+                        dur="500"
+                        repeat="indefinite"
+                        easing="ease-in-out-sine">
+                    </a-animation>
+                </a-circle>
+            </a-entity>
+
             <!-- Green ring hotspot to go forward to Main 2 -->
             <a-ring
                 position="7 0.05 5"

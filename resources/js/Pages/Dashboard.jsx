@@ -13,9 +13,11 @@ import {
     CubeTransparentIcon,
     LifebuoyIcon,
     XMarkIcon,
-    PhotoIcon
+    PhotoIcon,
+    SpeakerWaveIcon,
+    SpeakerXMarkIcon
 } from '@heroicons/react/24/outline';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import EmbeddedVRTour from '@/Components/EmbeddedVRTour';
 
 export default function Dashboard({ auth }) {
@@ -23,6 +25,53 @@ export default function Dashboard({ auth }) {
     const [announcements, setAnnouncements] = useState([]);
     const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [hasInteracted, setHasInteracted] = useState(false);
+    const audioRef = useRef(null);
+
+    // Initialize audio on component mount
+    useEffect(() => {
+        audioRef.current = new Audio('/audio/hawaiian-music.mp3');
+        audioRef.current.loop = true;
+        audioRef.current.volume = 0.3;
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
+        };
+    }, []);
+
+    // Handle user interaction to start background music
+    const handleEnvironmentClick = () => {
+        if (!hasInteracted && audioRef.current) {
+            setHasInteracted(true);
+            audioRef.current.play().then(() => {
+                setIsPlaying(true);
+            }).catch(err => {
+                console.log('Audio autoplay prevented:', err);
+            });
+        }
+    };
+
+    // Toggle music on/off
+    const toggleMusic = (e) => {
+        e.stopPropagation();
+        if (audioRef.current) {
+            if (isPlaying) {
+                audioRef.current.pause();
+                setIsPlaying(false);
+            } else {
+                audioRef.current.play().then(() => {
+                    setIsPlaying(true);
+                    setHasInteracted(true);
+                }).catch(err => {
+                    console.log('Audio play prevented:', err);
+                });
+            }
+        }
+    };
 
     // Fetch announcements on component mount
     useEffect(() => {
@@ -109,7 +158,7 @@ export default function Dashboard({ auth }) {
         <AuthenticatedLayout>
             <Head title="Dashboard" />
 
-            <div>
+            <div onClick={handleEnvironmentClick}>
                 {/* Hero Header with Photo */}
                 <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
                     {/* Background Image */}
@@ -258,7 +307,7 @@ export default function Dashboard({ auth }) {
                                             <div className="flex items-start flex-1 mb-2 sm:mb-0 gap-3">
                                                 {announcement.photo_path && (
                                                     <img
-                                                        src={announcement.photo_path.startsWith('http') ? announcement.photo_path : `/storage/${announcement.photo_path}`}
+                                                        src={announcement.photo_path.startsWith('http') ? announcement.photo_path : `${announcement.photo_path}`}
                                                         alt="Announcement"
                                                         className="h-16 w-16 rounded-lg object-cover flex-shrink-0 border-2 border-orange-200"
                                                     />
@@ -293,6 +342,30 @@ export default function Dashboard({ auth }) {
                 <EmbeddedVRTour onClose={() => setShowVRTour(false)} />
             )}
 
+            {/* Floating Music Control Button */}
+            <button
+                onClick={toggleMusic}
+                className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 ${
+                    isPlaying
+                        ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-100'
+                }`}
+                title={isPlaying ? 'Pause island music' : 'Play island music'}
+            >
+                {isPlaying ? (
+                    <SpeakerWaveIcon className="h-6 w-6" />
+                ) : (
+                    <SpeakerXMarkIcon className="h-6 w-6" />
+                )}
+            </button>
+
+            {/* Click to play prompt (shows only before first interaction) */}
+            {!hasInteracted && (
+                <div className="fixed bottom-20 right-6 z-50 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg text-sm text-gray-600 animate-bounce">
+                    🎵 Click anywhere to play island music
+                </div>
+            )}
+
             {/* Announcement Detail Modal */}
             {showDetailModal && selectedAnnouncement && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -319,8 +392,8 @@ export default function Dashboard({ auth }) {
                         <div className="p-6 md:p-8">
                             {selectedAnnouncement.photo_path && (
                                 <div className="mb-6 rounded-2xl overflow-hidden shadow-xl">
-                                    <img
-                                        src={selectedAnnouncement.photo_path.startsWith('http') ? selectedAnnouncement.photo_path : `/storage/${selectedAnnouncement.photo_path}`}
+                                    <img        
+                                        src={selectedAnnouncement.photo_path.startsWith('http') ? selectedAnnouncement.photo_path : `${selectedAnnouncement.photo_path}`}
                                         alt={selectedAnnouncement.title}
                                         className="w-full h-auto object-cover"
                                     />

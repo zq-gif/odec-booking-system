@@ -1,18 +1,37 @@
 import { useEffect, useRef, useState } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 // Global flag to track if A-Frame is loaded or loading
 let aframeLoadingPromise = null;
 
-export default function VRTourModal({ isOpen, onClose, imageUrl, activityName }) {
+export default function VRTourModal({ isOpen, onClose, imageUrl, activityName, scenes = [] }) {
     const containerRef = useRef(null);
     const sceneRef = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
     const [loadError, setLoadError] = useState(false);
     const [loadProgress, setLoadProgress] = useState(0);
+    const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
+
+    // Build scenes array from either scenes prop or single imageUrl
+    const allScenes = scenes.length > 0
+        ? scenes
+        : imageUrl
+            ? [{ title: activityName || 'Scene 1', image: imageUrl }]
+            : [];
+
+    const currentScene = allScenes[currentSceneIndex];
+    const hasMultipleScenes = allScenes.length > 1;
+
+    // Reset scene index when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            setCurrentSceneIndex(0);
+        }
+    }, [isOpen]);
 
     useEffect(() => {
-        if (!isOpen || !imageUrl) return;
+        const currentImageUrl = currentScene?.image;
+        if (!isOpen || !currentImageUrl) return;
 
         let isMounted = true;
 
@@ -114,7 +133,7 @@ export default function VRTourModal({ isOpen, onClose, imageUrl, activityName })
                 const assets = document.createElement('a-assets');
                 const img = document.createElement('img');
                 img.id = 'vr-image';
-                img.src = imageUrl;
+                img.src = currentImageUrl;
                 img.crossOrigin = 'anonymous';
 
                 // Mark as already loaded for faster rendering
@@ -154,7 +173,7 @@ export default function VRTourModal({ isOpen, onClose, imageUrl, activityName })
 
             preloadImage.onerror = () => {
                 clearTimeout(imageLoadTimeout);
-                console.error('Failed to load VR image:', imageUrl);
+                console.error('Failed to load VR image:', currentImageUrl);
                 if (isMounted) {
                     setLoadError(true);
                     setIsLoading(false);
@@ -163,7 +182,7 @@ export default function VRTourModal({ isOpen, onClose, imageUrl, activityName })
 
             // Start preloading with cache busting disabled
             preloadImage.crossOrigin = 'anonymous';
-            preloadImage.src = imageUrl;
+            preloadImage.src = currentImageUrl;
         };
 
         const cleanupScene = () => {
@@ -188,12 +207,42 @@ export default function VRTourModal({ isOpen, onClose, imageUrl, activityName })
             isMounted = false;
             cleanupScene();
         };
-    }, [isOpen, imageUrl]);
+    }, [isOpen, currentSceneIndex, currentScene?.image]);
+
+    const goToPreviousScene = () => {
+        if (currentSceneIndex > 0) {
+            setCurrentSceneIndex(currentSceneIndex - 1);
+        }
+    };
+
+    const goToNextScene = () => {
+        if (currentSceneIndex < allScenes.length - 1) {
+            setCurrentSceneIndex(currentSceneIndex + 1);
+        }
+    };
+
+    // Keyboard navigation
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'ArrowLeft') {
+                goToPreviousScene();
+            } else if (e.key === 'ArrowRight') {
+                goToNextScene();
+            } else if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, currentSceneIndex, allScenes.length]);
 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 overflow-hidden">
+        <div className="fixed inset-0 z-[60] overflow-hidden">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black bg-opacity-95 backdrop-blur-sm transition-opacity"
@@ -207,9 +256,11 @@ export default function VRTourModal({ isOpen, onClose, imageUrl, activityName })
                     <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/90 to-transparent p-4 pointer-events-none" style={{ zIndex: 30 }}>
                         <div className="flex items-center justify-between pointer-events-auto">
                             <div>
-                                <h3 className="text-xl font-bold text-white">{activityName} - 360° VR Tour</h3>
+                                <h3 className="text-xl font-bold text-white">
+                                    {currentScene?.title || activityName} - 360° VR Tour
+                                </h3>
                                 <p className="text-sm text-gray-300 mt-1">
-                                    🖱️ Drag to look around • Click VR button for immersive mode
+                                    Drag to look around • Click VR button for immersive mode
                                 </p>
                             </div>
                             <button
@@ -256,7 +307,7 @@ export default function VRTourModal({ isOpen, onClose, imageUrl, activityName })
                     {loadError && (
                         <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 20 }}>
                             <div className="text-center px-4">
-                                <div className="text-red-500 text-6xl mb-4">⚠️</div>
+                                <div className="text-red-500 text-6xl mb-4">!</div>
                                 <p className="text-white text-xl font-semibold mb-2">Failed to Load VR Tour</p>
                                 <p className="text-gray-400 text-sm">Please check your internet connection and try again.</p>
                                 <button
@@ -285,26 +336,86 @@ export default function VRTourModal({ isOpen, onClose, imageUrl, activityName })
                         }}
                     />
 
-                    {/* Instructions */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6 pointer-events-none" style={{ zIndex: 30 }}>
-                        <div className="flex items-center justify-center gap-8 text-white text-sm flex-wrap">
-                            <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                                    🖱️
+                    {/* Bottom Control Panel */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 to-transparent pt-16 pb-6 pointer-events-none" style={{ zIndex: 30 }}>
+                        <div className="max-w-2xl mx-auto px-6 pointer-events-auto">
+                            {/* Scene Navigation Controls */}
+                            <div className="flex items-center justify-center gap-4 mb-4">
+                                {/* Previous Button */}
+                                <button
+                                    onClick={goToPreviousScene}
+                                    disabled={currentSceneIndex === 0 || isLoading}
+                                    className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition-all ${
+                                        currentSceneIndex === 0 || isLoading
+                                            ? 'bg-white/10 text-gray-500 cursor-not-allowed'
+                                            : 'bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm'
+                                    }`}
+                                >
+                                    <ChevronLeftIcon className="h-5 w-5" />
+                                    <span>Previous</span>
+                                </button>
+
+                                {/* Scene Indicator */}
+                                <div className="flex items-center gap-3 px-6 py-3 bg-white/10 rounded-xl backdrop-blur-sm">
+                                    <span className="text-white font-semibold">
+                                        Scene {currentSceneIndex + 1} of {allScenes.length}
+                                    </span>
                                 </div>
-                                <span>Drag to look around 360°</span>
+
+                                {/* Next Button */}
+                                <button
+                                    onClick={goToNextScene}
+                                    disabled={currentSceneIndex === allScenes.length - 1 || isLoading}
+                                    className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition-all ${
+                                        currentSceneIndex === allScenes.length - 1 || isLoading
+                                            ? 'bg-white/10 text-gray-500 cursor-not-allowed'
+                                            : 'bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm'
+                                    }`}
+                                >
+                                    <span>Next</span>
+                                    <ChevronRightIcon className="h-5 w-5" />
+                                </button>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                                    📱
+
+                            {/* Scene Dots Indicator */}
+                            {hasMultipleScenes && (
+                                <div className="flex items-center justify-center gap-2 mb-4">
+                                    {allScenes.map((scene, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => !isLoading && setCurrentSceneIndex(index)}
+                                            disabled={isLoading}
+                                            className={`w-3 h-3 rounded-full transition-all ${
+                                                index === currentSceneIndex
+                                                    ? 'bg-white scale-125'
+                                                    : 'bg-white/40 hover:bg-white/60'
+                                            } ${isLoading ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                                            title={scene.title || `Scene ${index + 1}`}
+                                        />
+                                    ))}
                                 </div>
-                                <span>Use VR headset for full immersion</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                                    ⌨️
+                            )}
+
+                            {/* Instructions */}
+                            <div className="flex items-center justify-center gap-6 text-white text-xs">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
+                                        ←→
+                                    </div>
+                                    <span>Arrow keys to navigate</span>
                                 </div>
-                                <span>Press ESC to exit</span>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
+                                        drag
+                                    </div>
+                                    <span>Drag to look around</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
+                                        ESC
+                                    </div>
+                                    <span>Press to exit</span>
+                                </div>
                             </div>
                         </div>
                     </div>
