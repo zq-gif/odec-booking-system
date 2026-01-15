@@ -34,6 +34,24 @@ export default function AuthenticatedLayout({ header, children }) {
     // Check if user is admin
     const isAdmin = user.role === 'admin';
 
+    // Initialize expanded sections - Overview always open, others based on active item
+    const getInitialExpandedSections = () => {
+        const sections = { 'Overview': true };
+        return sections;
+    };
+    const [expandedSections, setExpandedSections] = useState(getInitialExpandedSections);
+
+    // Toggle section expand/collapse
+    const toggleSection = (sectionTitle) => {
+        setExpandedSections(prev => ({
+            ...prev,
+            [sectionTitle]: !prev[sectionTitle]
+        }));
+    };
+
+    // Check if section has active item
+    const sectionHasActiveItem = (items) => items.some(item => item.current);
+
     // Admin navigation - organized by sections
     const adminNavSections = [
         {
@@ -113,29 +131,50 @@ export default function AuthenticatedLayout({ header, children }) {
                             </button>
                         </div>
                         <nav className="flex-1 px-3 py-4 overflow-y-auto max-h-[calc(100vh-200px)]">
-                            {adminNavSections.map((section, sectionIdx) => (
-                                <div key={section.title} className={sectionIdx > 0 ? 'mt-3' : ''}>
-                                    <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
-                                        {section.title}
-                                    </p>
-                                    <div className="space-y-0.5">
-                                        {section.items.map((item) => (
-                                            <Link
-                                                key={item.name}
-                                                href={item.href}
-                                                className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg ${
-                                                    item.current
-                                                        ? 'bg-gradient-to-r from-blue-100 to-orange-100 text-orange-600'
-                                                        : 'text-gray-600 hover:bg-gray-50'
+                            {adminNavSections.map((section, sectionIdx) => {
+                                const isExpanded = expandedSections[section.title] || sectionHasActiveItem(section.items);
+                                const hasActive = sectionHasActiveItem(section.items);
+
+                                return (
+                                    <div key={section.title} className={sectionIdx > 0 ? 'mt-2' : ''}>
+                                        <button
+                                            onClick={() => toggleSection(section.title)}
+                                            className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider rounded-lg ${
+                                                hasActive
+                                                    ? 'text-orange-600 bg-orange-50'
+                                                    : 'text-gray-500 hover:bg-gray-50'
+                                            }`}
+                                        >
+                                            <span>{section.title}</span>
+                                            <ChevronDownIcon
+                                                className={`h-4 w-4 transition-transform duration-200 ${
+                                                    isExpanded ? 'rotate-180' : ''
                                                 }`}
-                                            >
-                                                <item.icon className={`mr-3 h-5 w-5 ${item.current ? 'text-orange-600' : 'text-gray-400'}`} />
-                                                {item.name}
-                                            </Link>
-                                        ))}
+                                            />
+                                        </button>
+                                        <div className={`overflow-hidden transition-all duration-200 ${
+                                            isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                                        }`}>
+                                            <div className="space-y-0.5 mt-1 ml-2">
+                                                {section.items.map((item) => (
+                                                    <Link
+                                                        key={item.name}
+                                                        href={item.href}
+                                                        className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg ${
+                                                            item.current
+                                                                ? 'bg-gradient-to-r from-blue-100 to-orange-100 text-orange-600'
+                                                                : 'text-gray-600 hover:bg-gray-50'
+                                                        }`}
+                                                    >
+                                                        <item.icon className={`mr-3 h-4 w-4 ${item.current ? 'text-orange-600' : 'text-gray-400'}`} />
+                                                        {item.name}
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </nav>
                         <div className="border-t border-gray-200 p-4">
                             <div className="flex items-center mb-3">
@@ -184,29 +223,50 @@ export default function AuthenticatedLayout({ header, children }) {
 
                         {/* Navigation */}
                         <nav className="flex-1 px-3 py-4 overflow-y-auto">
-                            {adminNavSections.map((section, sectionIdx) => (
-                                <div key={section.title} className={sectionIdx > 0 ? 'mt-4' : ''}>
-                                    <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
-                                        {section.title}
-                                    </p>
-                                    <div className="space-y-0.5">
-                                        {section.items.map((item) => (
-                                            <Link
-                                                key={item.name}
-                                                href={item.href}
-                                                className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                                    item.current
-                                                        ? 'bg-gradient-to-r from-blue-100 to-orange-100 text-orange-600 shadow-sm'
-                                                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                            {adminNavSections.map((section, sectionIdx) => {
+                                const isExpanded = expandedSections[section.title] || sectionHasActiveItem(section.items);
+                                const hasActive = sectionHasActiveItem(section.items);
+
+                                return (
+                                    <div key={section.title} className={sectionIdx > 0 ? 'mt-2' : ''}>
+                                        <button
+                                            onClick={() => toggleSection(section.title)}
+                                            className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider rounded-lg transition-colors ${
+                                                hasActive
+                                                    ? 'text-orange-600 bg-orange-50'
+                                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                                            }`}
+                                        >
+                                            <span>{section.title}</span>
+                                            <ChevronDownIcon
+                                                className={`h-4 w-4 transition-transform duration-200 ${
+                                                    isExpanded ? 'rotate-180' : ''
                                                 }`}
-                                            >
-                                                <item.icon className={`mr-3 h-5 w-5 ${item.current ? 'text-orange-600' : 'text-gray-400'}`} />
-                                                {item.name}
-                                            </Link>
-                                        ))}
+                                            />
+                                        </button>
+                                        <div className={`overflow-hidden transition-all duration-200 ${
+                                            isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                                        }`}>
+                                            <div className="space-y-0.5 mt-1 ml-2">
+                                                {section.items.map((item) => (
+                                                    <Link
+                                                        key={item.name}
+                                                        href={item.href}
+                                                        className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                                            item.current
+                                                                ? 'bg-gradient-to-r from-blue-100 to-orange-100 text-orange-600 shadow-sm'
+                                                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                                        }`}
+                                                    >
+                                                        <item.icon className={`mr-3 h-4 w-4 ${item.current ? 'text-orange-600' : 'text-gray-400'}`} />
+                                                        {item.name}
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </nav>
 
                         {/* Logout */}
