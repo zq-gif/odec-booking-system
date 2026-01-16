@@ -1,8 +1,40 @@
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import { useEffect, useRef } from 'react';
+import { XMarkIcon, SpeakerWaveIcon, SpeakerXMarkIcon } from '@heroicons/react/24/outline';
+import { useEffect, useRef, useState } from 'react';
 
 export default function EmbeddedVRTour({ onClose, openInNewWindow = false }) {
     const iframeRef = useRef(null);
+    const audioRef = useRef(null);
+    const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+
+    // Initialize audio for VR Tour
+    useEffect(() => {
+        audioRef.current = new Audio('/audio/hawaiian-music.mp3');
+        audioRef.current.loop = true;
+        audioRef.current.volume = 0.3;
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
+        };
+    }, []);
+
+    // Toggle music
+    const toggleMusic = () => {
+        if (audioRef.current) {
+            if (isMusicPlaying) {
+                audioRef.current.pause();
+                setIsMusicPlaying(false);
+            } else {
+                audioRef.current.play().then(() => {
+                    setIsMusicPlaying(true);
+                }).catch(err => {
+                    console.log('Audio play prevented:', err);
+                });
+            }
+        }
+    };
 
     useEffect(() => {
         if (openInNewWindow) {
@@ -45,6 +77,30 @@ export default function EmbeddedVRTour({ onClose, openInNewWindow = false }) {
             >
                 <XMarkIcon className="h-8 w-8 text-white group-hover:scale-110 transition-transform" />
             </button>
+
+            {/* Music Control Button */}
+            <button
+                onClick={toggleMusic}
+                className={`absolute bottom-6 right-6 z-[110] p-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 ${
+                    isMusicPlaying
+                        ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
+                        : 'bg-white/20 hover:bg-white/30 text-white'
+                }`}
+                title={isMusicPlaying ? 'Pause island music' : 'Play island music'}
+            >
+                {isMusicPlaying ? (
+                    <SpeakerWaveIcon className="h-6 w-6" />
+                ) : (
+                    <SpeakerXMarkIcon className="h-6 w-6" />
+                )}
+            </button>
+
+            {/* Music prompt */}
+            {!isMusicPlaying && (
+                <div className="absolute bottom-20 right-6 z-[110] bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg text-sm text-gray-700 animate-bounce">
+                    🎵 Click to play island music
+                </div>
+            )}
 
             {/* Instructions Overlay */}
             <div className="absolute top-4 left-4 z-[110] bg-black/60 backdrop-blur-sm text-white p-4 rounded-lg max-w-xs">
