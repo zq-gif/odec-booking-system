@@ -8,7 +8,7 @@ import {
     ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 
-export default function ChatBot() {
+export default function ChatBot({ hidden = false }) {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
         {
@@ -477,6 +477,9 @@ export default function ChatBot() {
         setConversationContext([]);
         setInputMessage('');
     };
+
+    // Don't render if hidden
+    if (hidden) return null;
 
     return (
         <>

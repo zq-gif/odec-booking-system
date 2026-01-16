@@ -155,7 +155,7 @@ export default function Dashboard({ auth }) {
     };
 
     return (
-        <AuthenticatedLayout>
+        <AuthenticatedLayout hideChatBot={showVRTour}>
             <Head title="Dashboard" />
 
             <div onClick={handleEnvironmentClick}>

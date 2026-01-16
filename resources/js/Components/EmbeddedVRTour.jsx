@@ -81,7 +81,7 @@ export default function EmbeddedVRTour({ onClose, openInNewWindow = false }) {
             {/* Music Control Button */}
             <button
                 onClick={toggleMusic}
-                className={`absolute bottom-6 right-6 z-[110] p-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 ${
+                className={`absolute bottom-6 left-6 z-[110] p-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 ${
                     isMusicPlaying
                         ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
                         : 'bg-white/20 hover:bg-white/30 text-white'
@@ -97,23 +97,19 @@ export default function EmbeddedVRTour({ onClose, openInNewWindow = false }) {
 
             {/* Music prompt */}
             {!isMusicPlaying && (
-                <div className="absolute bottom-20 right-6 z-[110] bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg text-sm text-gray-700 animate-bounce">
+                <div className="absolute bottom-20 left-6 z-[110] bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg text-sm text-gray-700 animate-bounce">
                     🎵 Click to play island music
                 </div>
             )}
 
-            {/* Instructions Overlay */}
-            <div className="absolute top-4 left-4 z-[110] bg-black/60 backdrop-blur-sm text-white p-4 rounded-lg max-w-xs">
-                <h3 className="font-bold mb-2">VR Tour Controls</h3>
-                <ul className="text-sm space-y-1">
-                    <li>🖱️ <strong>Desktop:</strong> Click and drag to look around</li>
-                    <li>📱 <strong>Mobile:</strong> Move your phone to explore</li>
-                    <li>⌨️ <strong>Keyboard:</strong> Arrow keys or WASD to navigate</li>
-                    <li>🔍 <strong>Zoom:</strong> Scroll wheel or pinch</li>
-                    <li>🗺️ <strong>Map:</strong> Press M in Main 3 scene</li>
-                    <li>🟢 <strong>Green ring:</strong> Go forward</li>
-                    <li>🔵 <strong>Blue ring:</strong> Go back</li>
-                </ul>
+            {/* Instructions Overlay - Bottom Center */}
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-[110] bg-black/60 backdrop-blur-sm text-white px-6 py-3 rounded-full">
+                <div className="flex items-center gap-6 text-sm">
+                    <span>🔵 <strong>Blue:</strong> Back</span>
+                    <span>🟢 <strong>Green:</strong> Forward</span>
+                    <span>🗺️ <strong>M:</strong> Map</span>
+                    <span>🖱️ Drag to look</span>
+                </div>
             </div>
 
             {/* Embedded VR Tour iFrame */}

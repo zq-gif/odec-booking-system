@@ -25,7 +25,7 @@ import {
     Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 
-export default function AuthenticatedLayout({ header, children }) {
+export default function AuthenticatedLayout({ header, children, hideChatBot = false }) {
     const user = usePage().props.auth.user;
     const locale = usePage().props.locale || 'en';
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -469,7 +469,7 @@ export default function AuthenticatedLayout({ header, children }) {
             </main>
 
             {/* AI ChatBot for FAQ */}
-            <ChatBot />
+            <ChatBot hidden={hideChatBot} />
 
             {/* Footer */}
             <Footer />
