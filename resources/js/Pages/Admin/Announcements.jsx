@@ -12,6 +12,15 @@ import {
     PhotoIcon
 } from '@heroicons/react/24/outline';
 
+// Helper function to normalize storage paths
+const getImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    // Remove any leading /storage/ or storage/ prefixes, then add single /storage/
+    const cleanPath = path.replace(/^(\/storage\/|storage\/)+/, '');
+    return `/storage/${cleanPath}`;
+};
+
 export default function Announcements({ auth, announcements }) {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -215,13 +224,7 @@ export default function Announcements({ auth, announcements }) {
                                                     <td className="px-6 py-4">
                                                         {announcement.photo_path ? (
                                                             <img
-                                                                src={
-                                                                    announcement.photo_path.startsWith('http')
-                                                                        ? announcement.photo_path
-                                                                        : announcement.photo_path.startsWith('/storage/') || announcement.photo_path.startsWith('storage/')
-                                                                            ? (announcement.photo_path.startsWith('/') ? announcement.photo_path : `/${announcement.photo_path}`)
-                                                                            : `/storage/${announcement.photo_path}`
-                                                                }
+                                                                src={getImageUrl(announcement.photo_path)}
                                                                 alt="Announcement"
                                                                 className="h-12 w-12 rounded object-cover"
                                                             />
@@ -450,13 +453,7 @@ export default function Announcements({ auth, announcements }) {
                                     {selectedAnnouncement?.photo_path && (
                                         <div className="mb-2">
                                             <img
-                                                src={
-                                                    selectedAnnouncement.photo_path.startsWith('http')
-                                                        ? selectedAnnouncement.photo_path
-                                                        : selectedAnnouncement.photo_path.startsWith('/storage/') || selectedAnnouncement.photo_path.startsWith('storage/')
-                                                            ? (selectedAnnouncement.photo_path.startsWith('/') ? selectedAnnouncement.photo_path : `/${selectedAnnouncement.photo_path}`)
-                                                            : `/storage/${selectedAnnouncement.photo_path}`
-                                                }
+                                                src={getImageUrl(selectedAnnouncement.photo_path)}
                                                 alt="Current"
                                                 className="h-24 w-24 rounded object-cover"
                                             />

@@ -7,18 +7,25 @@ import {
     ClipboardDocumentListIcon,
     BellIcon,
     SparklesIcon,
-    MapPinIcon,
     SunIcon,
     ArrowRightIcon,
     CubeTransparentIcon,
     LifebuoyIcon,
     XMarkIcon,
-    PhotoIcon,
     SpeakerWaveIcon,
     SpeakerXMarkIcon
 } from '@heroicons/react/24/outline';
 import { useState, useEffect, useRef } from 'react';
 import EmbeddedVRTour from '@/Components/EmbeddedVRTour';
+
+// Helper function to normalize storage paths
+const getImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    // Remove any leading /storage/ or storage/ prefixes, then add single /storage/
+    const cleanPath = path.replace(/^(\/storage\/|storage\/)+/, '');
+    return `/storage/${cleanPath}`;
+};
 
 export default function Dashboard({ auth }) {
     const [showVRTour, setShowVRTour] = useState(false);
@@ -307,13 +314,7 @@ export default function Dashboard({ auth }) {
                                             <div className="flex items-start flex-1 mb-2 sm:mb-0 gap-3">
                                                 {announcement.photo_path && (
                                                     <img
-                                                        src={
-                                                            announcement.photo_path.startsWith('http')
-                                                                ? announcement.photo_path
-                                                                : announcement.photo_path.startsWith('/storage/') || announcement.photo_path.startsWith('storage/')
-                                                                    ? (announcement.photo_path.startsWith('/') ? announcement.photo_path : `/${announcement.photo_path}`)
-                                                                    : `/storage/${announcement.photo_path}`
-                                                        }
+                                                        src={getImageUrl(announcement.photo_path)}
                                                         alt="Announcement"
                                                         className="h-16 w-16 rounded-lg object-cover flex-shrink-0 border-2 border-orange-200"
                                                     />
@@ -399,13 +400,7 @@ export default function Dashboard({ auth }) {
                             {selectedAnnouncement.photo_path && (
                                 <div className="mb-6 rounded-2xl overflow-hidden shadow-xl">
                                     <img
-                                        src={
-                                            selectedAnnouncement.photo_path.startsWith('http')
-                                                ? selectedAnnouncement.photo_path
-                                                : selectedAnnouncement.photo_path.startsWith('/storage/') || selectedAnnouncement.photo_path.startsWith('storage/')
-                                                    ? (selectedAnnouncement.photo_path.startsWith('/') ? selectedAnnouncement.photo_path : `/${selectedAnnouncement.photo_path}`)
-                                                    : `/storage/${selectedAnnouncement.photo_path}`
-                                        }
+                                        src={getImageUrl(selectedAnnouncement.photo_path)}
                                         alt={selectedAnnouncement.title}
                                         className="w-full h-auto object-cover"
                                     />
