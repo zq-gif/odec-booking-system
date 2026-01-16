@@ -310,8 +310,8 @@ export default function Dashboard({ auth }) {
                                                         src={
                                                             announcement.photo_path.startsWith('http')
                                                                 ? announcement.photo_path
-                                                                : announcement.photo_path.startsWith('/storage/')
-                                                                    ? announcement.photo_path
+                                                                : announcement.photo_path.startsWith('/storage/') || announcement.photo_path.startsWith('storage/')
+                                                                    ? (announcement.photo_path.startsWith('/') ? announcement.photo_path : `/${announcement.photo_path}`)
                                                                     : `/storage/${announcement.photo_path}`
                                                         }
                                                         alt="Announcement"
@@ -402,8 +402,8 @@ export default function Dashboard({ auth }) {
                                         src={
                                             selectedAnnouncement.photo_path.startsWith('http')
                                                 ? selectedAnnouncement.photo_path
-                                                : selectedAnnouncement.photo_path.startsWith('/storage/')
-                                                    ? selectedAnnouncement.photo_path
+                                                : selectedAnnouncement.photo_path.startsWith('/storage/') || selectedAnnouncement.photo_path.startsWith('storage/')
+                                                    ? (selectedAnnouncement.photo_path.startsWith('/') ? selectedAnnouncement.photo_path : `/${selectedAnnouncement.photo_path}`)
                                                     : `/storage/${selectedAnnouncement.photo_path}`
                                         }
                                         alt={selectedAnnouncement.title}

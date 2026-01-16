@@ -14,10 +14,14 @@ class AnnouncementController extends Controller
             ->limit(5)
             ->get()
             ->map(function ($announcement) {
-                // Fix any double /storage/ prefix issues
+                // Fix any storage path issues
                 if ($announcement->photo_path && !str_starts_with($announcement->photo_path, 'http')) {
-                    // Remove any duplicate /storage/ prefixes
-                    $announcement->photo_path = preg_replace('#^(/storage/)+#', '/storage/', $announcement->photo_path);
+                    // Normalize path: remove duplicate /storage/ or storage/ prefixes and ensure it starts with /storage/
+                    $path = $announcement->photo_path;
+                    // Remove all leading /storage/ or storage/ prefixes
+                    $path = preg_replace('#^(/storage/|storage/)+#', '', $path);
+                    // Add back single /storage/ prefix
+                    $announcement->photo_path = '/storage/' . $path;
                 }
                 return $announcement;
             });

@@ -217,10 +217,10 @@ export default function Announcements({ auth, announcements }) {
                                                             <img
                                                                 src={
                                                                     announcement.photo_path.startsWith('http')
-                                                                        ? announcement.photo_path // Cloudinary or external URL
-                                                                        : announcement.photo_path.startsWith('/storage/')
-                                                                            ? announcement.photo_path // Old format with /storage/
-                                                                            : `/storage/${announcement.photo_path}` // New local storage format
+                                                                        ? announcement.photo_path
+                                                                        : announcement.photo_path.startsWith('/storage/') || announcement.photo_path.startsWith('storage/')
+                                                                            ? (announcement.photo_path.startsWith('/') ? announcement.photo_path : `/${announcement.photo_path}`)
+                                                                            : `/storage/${announcement.photo_path}`
                                                                 }
                                                                 alt="Announcement"
                                                                 className="h-12 w-12 rounded object-cover"
@@ -452,10 +452,10 @@ export default function Announcements({ auth, announcements }) {
                                             <img
                                                 src={
                                                     selectedAnnouncement.photo_path.startsWith('http')
-                                                        ? selectedAnnouncement.photo_path // Cloudinary or external URL
-                                                        : selectedAnnouncement.photo_path.startsWith('/storage/')
-                                                            ? selectedAnnouncement.photo_path // Old format with /storage/
-                                                            : `/storage/${selectedAnnouncement.photo_path}` // New local storage format
+                                                        ? selectedAnnouncement.photo_path
+                                                        : selectedAnnouncement.photo_path.startsWith('/storage/') || selectedAnnouncement.photo_path.startsWith('storage/')
+                                                            ? (selectedAnnouncement.photo_path.startsWith('/') ? selectedAnnouncement.photo_path : `/${selectedAnnouncement.photo_path}`)
+                                                            : `/storage/${selectedAnnouncement.photo_path}`
                                                 }
                                                 alt="Current"
                                                 className="h-24 w-24 rounded object-cover"
