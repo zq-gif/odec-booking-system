@@ -12,7 +12,15 @@ class AnnouncementController extends Controller
         $announcements = Announcement::active()
             ->byDate()
             ->limit(5)
-            ->get();
+            ->get()
+            ->map(function ($announcement) {
+                // Fix any double /storage/ prefix issues
+                if ($announcement->photo_path && !str_starts_with($announcement->photo_path, 'http')) {
+                    // Remove any duplicate /storage/ prefixes
+                    $announcement->photo_path = preg_replace('#^(/storage/)+#', '/storage/', $announcement->photo_path);
+                }
+                return $announcement;
+            });
 
         return response()->json($announcements);
     }

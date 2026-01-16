@@ -307,7 +307,13 @@ export default function Dashboard({ auth }) {
                                             <div className="flex items-start flex-1 mb-2 sm:mb-0 gap-3">
                                                 {announcement.photo_path && (
                                                     <img
-                                                        src={announcement.photo_path.startsWith('http') ? announcement.photo_path : `${announcement.photo_path}`}
+                                                        src={
+                                                            announcement.photo_path.startsWith('http')
+                                                                ? announcement.photo_path
+                                                                : announcement.photo_path.startsWith('/storage/')
+                                                                    ? announcement.photo_path
+                                                                    : `/storage/${announcement.photo_path}`
+                                                        }
                                                         alt="Announcement"
                                                         className="h-16 w-16 rounded-lg object-cover flex-shrink-0 border-2 border-orange-200"
                                                     />
@@ -392,8 +398,14 @@ export default function Dashboard({ auth }) {
                         <div className="p-6 md:p-8">
                             {selectedAnnouncement.photo_path && (
                                 <div className="mb-6 rounded-2xl overflow-hidden shadow-xl">
-                                    <img        
-                                        src={selectedAnnouncement.photo_path.startsWith('http') ? selectedAnnouncement.photo_path : `${selectedAnnouncement.photo_path}`}
+                                    <img
+                                        src={
+                                            selectedAnnouncement.photo_path.startsWith('http')
+                                                ? selectedAnnouncement.photo_path
+                                                : selectedAnnouncement.photo_path.startsWith('/storage/')
+                                                    ? selectedAnnouncement.photo_path
+                                                    : `/storage/${selectedAnnouncement.photo_path}`
+                                        }
                                         alt={selectedAnnouncement.title}
                                         className="w-full h-auto object-cover"
                                     />
