@@ -185,4 +185,34 @@ class BookingController extends Controller
 
         return redirect()->back()->with('success', 'Booking deleted successfully.');
     }
+
+    /**
+     * Bulk delete bookings.
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'bookings' => 'required|array|min:1',
+            'bookings.*.id' => 'required|integer',
+            'bookings.*.type' => 'required|in:facility,activity',
+        ]);
+
+        $deletedCount = 0;
+
+        foreach ($request->bookings as $bookingData) {
+            try {
+                if ($bookingData['type'] === 'facility') {
+                    FacilityBooking::where('id', $bookingData['id'])->delete();
+                } else {
+                    ActivityBooking::where('id', $bookingData['id'])->delete();
+                }
+                $deletedCount++;
+            } catch (\Exception $e) {
+                // Continue with other deletions even if one fails
+                continue;
+            }
+        }
+
+        return redirect()->back()->with('success', "{$deletedCount} booking(s) deleted successfully.");
+    }
 }

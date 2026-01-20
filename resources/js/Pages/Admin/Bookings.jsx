@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
 import { useState } from 'react';
 import Breadcrumb from '@/Components/Breadcrumb';
 import {
@@ -9,13 +9,13 @@ import {
     UserIcon,
     CheckCircleIcon,
     XCircleIcon,
-    ClockIcon,
     TrashIcon,
     MagnifyingGlassIcon,
     FunnelIcon,
     DocumentTextIcon,
     XMarkIcon,
-    ArrowDownTrayIcon
+    ArrowDownTrayIcon,
+    CheckIcon
 } from '@heroicons/react/24/outline';
 
 // Helper function to get file extension
@@ -43,6 +43,8 @@ export default function Bookings({ auth, bookings }) {
     const [filterStatus, setFilterStatus] = useState('all'); // all, pending, confirmed, cancelled, completed
     const [selectedReceipt, setSelectedReceipt] = useState(null);
     const [showReceiptModal, setShowReceiptModal] = useState(false);
+    const [selectedBookings, setSelectedBookings] = useState([]);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const updateForm = useForm({
         type: '',
@@ -50,6 +52,56 @@ export default function Bookings({ auth, bookings }) {
     });
 
     const deleteForm = useForm({});
+
+    // Generate unique key for booking selection
+    const getBookingKey = (booking) => `${booking.type}-${booking.id}`;
+
+    // Check if a booking is selected
+    const isSelected = (booking) => selectedBookings.some(
+        b => b.id === booking.id && b.type === booking.type
+    );
+
+    // Toggle selection for a single booking
+    const toggleSelection = (booking) => {
+        if (isSelected(booking)) {
+            setSelectedBookings(selectedBookings.filter(
+                b => !(b.id === booking.id && b.type === booking.type)
+            ));
+        } else {
+            setSelectedBookings([...selectedBookings, { id: booking.id, type: booking.type }]);
+        }
+    };
+
+    // Select all visible bookings
+    const selectAll = () => {
+        const allKeys = filteredBookings.map(b => ({ id: b.id, type: b.type }));
+        setSelectedBookings(allKeys);
+    };
+
+    // Deselect all bookings
+    const deselectAll = () => {
+        setSelectedBookings([]);
+    };
+
+    // Handle bulk delete
+    const handleBulkDelete = () => {
+        if (selectedBookings.length === 0) return;
+
+        if (confirm(`Are you sure you want to delete ${selectedBookings.length} booking(s)? This action cannot be undone.`)) {
+            setIsDeleting(true);
+            router.post(route('admin.bookings.bulk-destroy'), {
+                bookings: selectedBookings
+            }, {
+                onSuccess: () => {
+                    setSelectedBookings([]);
+                    setIsDeleting(false);
+                },
+                onError: () => {
+                    setIsDeleting(false);
+                }
+            });
+        }
+    };
 
     const handleStatusUpdate = (booking, newStatus) => {
         updateForm.setData({
@@ -229,11 +281,49 @@ export default function Bookings({ auth, bookings }) {
                                 </div>
                             </div>
 
+                            {/* Bulk Actions Bar */}
+                            {selectedBookings.length > 0 && (
+                                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex flex-wrap items-center justify-between gap-4">
+                                    <div className="flex items-center gap-3">
+                                        <CheckIcon className="h-5 w-5 text-blue-600" />
+                                        <span className="text-sm font-medium text-blue-900">
+                                            {selectedBookings.length} booking{selectedBookings.length > 1 ? 's' : ''} selected
+                                        </span>
+                                        <button
+                                            onClick={deselectAll}
+                                            className="text-sm text-blue-600 hover:text-blue-800 underline"
+                                        >
+                                            Clear selection
+                                        </button>
+                                    </div>
+                                    <button
+                                        onClick={handleBulkDelete}
+                                        disabled={isDeleting}
+                                        className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition disabled:opacity-50"
+                                    >
+                                        <TrashIcon className="h-4 w-4 mr-2" />
+                                        {isDeleting ? 'Deleting...' : `Delete Selected (${selectedBookings.length})`}
+                                    </button>
+                                </div>
+                            )}
+
                             {/* Bookings Table */}
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
+                                            {/* Checkbox column header */}
+                                            <th className="px-4 py-3 text-left">
+                                                <div className="flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={filteredBookings.length > 0 && selectedBookings.length === filteredBookings.length}
+                                                        onChange={(e) => e.target.checked ? selectAll() : deselectAll()}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                        title="Select all"
+                                                    />
+                                                </div>
+                                            </th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Booking Details
                                             </th>
@@ -259,7 +349,19 @@ export default function Bookings({ auth, bookings }) {
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {filteredBookings.map((booking) => (
-                                            <tr key={`${booking.type}-${booking.id}`} className="hover:bg-gray-50">
+                                            <tr
+                                                key={`${booking.type}-${booking.id}`}
+                                                className={`hover:bg-gray-50 ${isSelected(booking) ? 'bg-blue-50' : ''}`}
+                                            >
+                                                {/* Checkbox column */}
+                                                <td className="px-4 py-4 whitespace-nowrap">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isSelected(booking)}
+                                                        onChange={() => toggleSelection(booking)}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                    />
+                                                </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="flex items-center">
                                                         {booking.type === 'facility' ? (

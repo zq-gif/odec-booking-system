@@ -309,6 +309,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     // Booking Management
     Route::resource('bookings', BookingController::class)->except(['create', 'edit']);
     Route::patch('bookings/{booking}/verify-payment', [BookingController::class, 'verifyPayment'])->name('bookings.verify-payment');
+    Route::post('bookings/bulk-destroy', [BookingController::class, 'bulkDestroy'])->name('bookings.bulk-destroy');
 
     // Staff Management
     Route::resource('staff', StaffController::class)->except(['create', 'edit', 'show']);
