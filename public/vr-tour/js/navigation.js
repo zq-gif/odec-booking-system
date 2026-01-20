@@ -12,7 +12,56 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('✅ A-Frame scene loaded!');
         const sky = document.querySelector('#image-360');
         const camera = document.querySelector('#camera');
+        const cursor = document.querySelector('#cursor');
+        const cursorRing = document.querySelector('#cursor-ring');
+        const fuseProgress = document.querySelector('#fuse-progress');
         let currentRoom = 'entrance'; // Starting room
+
+        // Forward cursor events to visual elements for VR fuse feedback
+        if (cursor && cursorRing && fuseProgress) {
+            cursor.addEventListener('fusing', function(evt) {
+                console.error('🎯 Fusing on element');
+                cursorRing.emit('fusing');
+                fuseProgress.emit('fusing');
+                cursorRing.setAttribute('color', '#00E676');
+            });
+
+            cursor.addEventListener('mouseenter', function(evt) {
+                console.error('🎯 Cursor entered clickable');
+                cursorRing.setAttribute('color', '#00E676');
+            });
+
+            cursor.addEventListener('mouseleave', function(evt) {
+                console.error('🎯 Cursor left clickable');
+                cursorRing.emit('mouseleave');
+                fuseProgress.emit('mouseleave');
+                cursorRing.setAttribute('color', 'white');
+            });
+
+            cursor.addEventListener('click', function(evt) {
+                console.error('🎯 Cursor click (fuse complete)');
+            });
+        }
+
+        // Setup VR controller click events
+        const leftHand = document.querySelector('#left-hand');
+        const rightHand = document.querySelector('#right-hand');
+
+        [leftHand, rightHand].forEach(hand => {
+            if (hand) {
+                hand.addEventListener('triggerdown', function(evt) {
+                    const raycaster = hand.components.raycaster;
+                    if (raycaster) {
+                        const intersections = raycaster.intersectedEls;
+                        if (intersections.length > 0) {
+                            const target = intersections[0];
+                            console.error('🎮 VR Controller trigger on:', target);
+                            target.emit('click');
+                        }
+                    }
+                });
+            }
+        });
 
         // Camera view persistence - restore saved rotation on page load
         const savedRotation = localStorage.getItem('cameraRotation');

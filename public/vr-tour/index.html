@@ -8,52 +8,306 @@
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-event-set-component@5.0.0/dist/aframe-event-set-component.min.js"></script>
     <script src="https://unpkg.com/aframe-layout-component@5.3.0/dist/aframe-layout-component.min.js"></script>
-    <script src="/vr-tour/js/position-helper.js"></script>
-    <script src="/vr-tour/js/navigation.js" defer></script>
+    <script src="js/position-helper.js"></script>
+    <script src="js/navigation.js" defer></script>
+    <style>
+        /* Loading Screen Styles */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .loading-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .loading-title {
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .loading-subtitle {
+            color: #94a3b8;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 16px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid #f97316;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        .loading-progress {
+            width: 250px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .loading-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #f97316, #fb923c);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .loading-text {
+            color: #94a3b8;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 14px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+    </style>
 </head>
 <body>
-    <a-scene>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loading-logo">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" stroke="#f97316" stroke-width="3" fill="none"/>
+                <path d="M30 50 L45 65 L70 35" stroke="#f97316" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <circle cx="50" cy="20" r="5" fill="#60a5fa"/>
+                <circle cx="80" cy="50" r="5" fill="#60a5fa"/>
+                <circle cx="50" cy="80" r="5" fill="#60a5fa"/>
+                <circle cx="20" cy="50" r="5" fill="#60a5fa"/>
+            </svg>
+        </div>
+        <div class="loading-title">ODEC UMS Beach</div>
+        <div class="loading-subtitle">Virtual Reality Tour</div>
+        <div class="loading-spinner"></div>
+        <div class="loading-progress">
+            <div class="loading-progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="loading-text" id="loading-text">Loading assets...</div>
+    </div>
+
+    <script>
+        // Loading progress tracking
+        let loadedAssets = 0;
+        let totalAssets = 18; // 14 scenes + 4 info images
+
+        function updateProgress(loaded, total) {
+            const percent = Math.round((loaded / total) * 100);
+            document.getElementById('progress-bar').style.width = percent + '%';
+            document.getElementById('loading-text').textContent = `Loading... ${percent}%`;
+        }
+
+        // Hide loading screen when scene is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            const scene = document.querySelector('a-scene');
+            if (scene) {
+                scene.addEventListener('loaded', function() {
+                    setTimeout(function() {
+                        document.getElementById('loading-screen').classList.add('hidden');
+                    }, 500);
+                });
+            }
+
+            // Track asset loading
+            const assets = document.querySelector('a-assets');
+            if (assets) {
+                assets.addEventListener('loaded', function() {
+                    updateProgress(totalAssets, totalAssets);
+                });
+            }
+
+            // Simulate progress while loading
+            let progress = 0;
+            const progressInterval = setInterval(function() {
+                if (progress < 90) {
+                    progress += Math.random() * 15;
+                    if (progress > 90) progress = 90;
+                    updateProgress(progress, 100);
+                }
+            }, 300);
+
+            // Clear interval when loaded
+            if (scene) {
+                scene.addEventListener('loaded', function() {
+                    clearInterval(progressInterval);
+                    updateProgress(100, 100);
+                });
+            }
+        });
+    </script>
+
+    <!-- VR Mode Instructions (mobile only) -->
+    <div id="vr-instructions" style="display: none; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 9998; background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; border-radius: 25px; font-family: 'Segoe UI', sans-serif; font-size: 14px; text-align: center; backdrop-filter: blur(10px);">
+        <span style="margin-right: 8px;">🥽</span>
+        Tap the VR button below to enter VR mode
+        <button onclick="this.parentElement.style.display='none'" style="margin-left: 12px; background: none; border: none; color: #999; cursor: pointer; font-size: 18px;">&times;</button>
+    </div>
+
+    <!-- Custom VR Button for better visibility -->
+    <button id="custom-vr-btn" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; padding: 15px 25px; border-radius: 30px; font-family: 'Segoe UI', sans-serif; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); display: flex; align-items: center; gap: 8px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8z"/>
+            <circle cx="8" cy="12" r="2"/>
+            <circle cx="16" cy="12" r="2"/>
+            <path d="M9 18v2m6-2v2"/>
+        </svg>
+        Enter VR
+    </button>
+
+    <script>
+        // Show instructions on mobile
+        if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            document.getElementById('vr-instructions').style.display = 'block';
+            // Auto-hide after 8 seconds
+            setTimeout(() => {
+                const instructions = document.getElementById('vr-instructions');
+                if (instructions) instructions.style.display = 'none';
+            }, 8000);
+        }
+
+        // Custom VR button click handler
+        document.getElementById('custom-vr-btn').addEventListener('click', function() {
+            const scene = document.querySelector('a-scene');
+            if (scene) {
+                if (scene.is('vr-mode')) {
+                    scene.exitVR();
+                    this.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8z"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="12" r="2"/><path d="M9 18v2m6-2v2"/></svg> Enter VR';
+                } else {
+                    scene.enterVR();
+                    this.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg> Exit VR';
+                }
+            }
+        });
+
+        // Update button text when VR mode changes
+        document.addEventListener('DOMContentLoaded', function() {
+            const scene = document.querySelector('a-scene');
+            if (scene) {
+                scene.addEventListener('enter-vr', function() {
+                    document.getElementById('custom-vr-btn').innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg> Exit VR';
+                    document.getElementById('vr-instructions').style.display = 'none';
+                });
+                scene.addEventListener('exit-vr', function() {
+                    document.getElementById('custom-vr-btn').innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8z"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="12" r="2"/><path d="M9 18v2m6-2v2"/></svg> Enter VR';
+                });
+            }
+        });
+    </script>
+
+    <a-scene
+        vr-mode-ui="enabled: true; enterVRButton: #custom-vr-btn"
+        device-orientation-permission-ui="enabled: true"
+        renderer="antialias: true; colorManagement: true; highRefreshRate: true"
+        background="color: #000"
+        embedded>
         <!-- Asset Management -->
         <a-assets>
             <!-- Banner image for entrance -->
-            <img id="banner" src="/vr-tour/assets/images/banner.png" crossorigin="anonymous">
+            <img id="banner" src="assets/images/banner.png" crossorigin="anonymous">
             <!-- Info images for parking 1 -->
-            <img id="feeInfo" src="/vr-tour/assets/images/fee-info.png" crossorigin="anonymous">
-            <img id="parkInfo" src="/vr-tour/assets/images/park-info.png" crossorigin="anonymous">
+            <img id="feeInfo" src="assets/images/fee-info.png" crossorigin="anonymous">
+            <img id="parkInfo" src="assets/images/park-info.png" crossorigin="anonymous">
             <!-- Beach Map image for Main 3 -->
-            <img id="beachMap" src="/vr-tour/assets/images/beach-map.jpg" crossorigin="anonymous">
+            <img id="beachMap" src="assets/images/beach-map.jpg" crossorigin="anonymous">
             <!-- 360 Images for the tour - Using your existing Scenes -->
-            <img id="entrance" src="/vr-tour/Scenes/entrance.jpg" crossorigin="anonymous">
-            <img id="parking1" src="/vr-tour/Scenes/parking 1.jpg" crossorigin="anonymous">
-            <img id="parking2" src="/vr-tour/Scenes/parking 2.jpg" crossorigin="anonymous">
-            <img id="main1" src="/vr-tour/Scenes/main 1.jpg" crossorigin="anonymous">
-            <img id="main2" src="/vr-tour/Scenes/main 2.jpg" crossorigin="anonymous">
-            <img id="main3" src="/vr-tour/Scenes/main 3.jpg" crossorigin="anonymous">
-            <img id="main4" src="/vr-tour/Scenes/main 4.jpg" crossorigin="anonymous">
-            <img id="main5" src="/vr-tour/Scenes/main 5.jpg" crossorigin="anonymous">
-            <img id="jetty" src="/vr-tour/Scenes/Jetty UMS.jpg" crossorigin="anonymous">
-            <img id="platform1" src="/vr-tour/Scenes/platform 1.jpg" crossorigin="anonymous">
-            <img id="platform2" src="/vr-tour/Scenes/platform 2.jpg" crossorigin="anonymous">
-            <img id="campsite1" src="/vr-tour/Scenes/campsite 1.jpg" crossorigin="anonymous">
-            <img id="campsite2" src="/vr-tour/Scenes/campsite 2.jpg" crossorigin="anonymous">
-            <img id="campsite3" src="/vr-tour/Scenes/campsite 3.jpg" crossorigin="anonymous">
+            <img id="entrance" src="Scenes/entrance.jpg" crossorigin="anonymous">
+            <img id="parking1" src="Scenes/parking 1.jpg" crossorigin="anonymous">
+            <img id="parking2" src="Scenes/parking 2.jpg" crossorigin="anonymous">
+            <img id="main1" src="Scenes/main 1.jpg" crossorigin="anonymous">
+            <img id="main2" src="Scenes/main 2.jpg" crossorigin="anonymous">
+            <img id="main3" src="Scenes/main 3.jpg" crossorigin="anonymous">
+            <img id="main4" src="Scenes/main 4.jpg" crossorigin="anonymous">
+            <img id="main5" src="Scenes/main 5.jpg" crossorigin="anonymous">
+            <img id="jetty" src="Scenes/Jetty UMS.jpg" crossorigin="anonymous">
+            <img id="platform1" src="Scenes/platform 1.jpg" crossorigin="anonymous">
+            <img id="platform2" src="Scenes/platform 2.jpg" crossorigin="anonymous">
+            <img id="campsite1" src="Scenes/campsite 1.jpg" crossorigin="anonymous">
+            <img id="campsite2" src="Scenes/campsite 2.jpg" crossorigin="anonymous">
+            <img id="campsite3" src="Scenes/campsite 3.jpg" crossorigin="anonymous">
         </a-assets>
 
         <!-- Sky: 360-degree panoramic image - Start with Entrance -->
         <a-sky id="image-360" src="#entrance" rotation="0 -130 0"></a-sky>
 
-        <!-- Camera with controls -->
-        <a-entity id="camera" camera look-controls wasd-controls position="0 1.6 0">
-            <!-- Cursor for interaction -->
-            <a-cursor 
+        <!-- Camera with controls - Stereo camera for VR -->
+        <a-entity id="rig" position="0 1.6 0">
+        <a-entity id="camera" camera look-controls="magicWindowTrackingEnabled: true; touchEnabled: true" wasd-controls position="0 0 0">
+            <!-- Cursor for interaction - fuse enabled for VR gaze-based clicking -->
+            <a-entity id="cursor-wrapper" position="0 0 -1">
+                <!-- Outer ring that shrinks during fuse -->
+                <a-ring
+                    id="cursor-ring"
+                    radius-inner="0.02"
+                    radius-outer="0.03"
+                    color="white"
+                    opacity="0.8"
+                    animation__fusing="property: geometry.radiusOuter; startEvents: fusing; from: 0.03; to: 0.015; dur: 1500"
+                    animation__leave="property: geometry.radiusOuter; startEvents: mouseleave; to: 0.03; dur: 150">
+                </a-ring>
+                <!-- Center dot -->
+                <a-circle
+                    radius="0.005"
+                    color="white"
+                    opacity="1">
+                </a-circle>
+                <!-- Fuse progress ring -->
+                <a-ring
+                    id="fuse-progress"
+                    radius-inner="0.025"
+                    radius-outer="0.035"
+                    color="#00E676"
+                    opacity="0"
+                    theta-length="0"
+                    animation__fusing="property: components.geometry.data.thetaLength; startEvents: fusing; from: 0; to: 360; dur: 1500"
+                    animation__fusing2="property: opacity; startEvents: fusing; from: 0; to: 0.9; dur: 100"
+                    animation__leave="property: opacity; startEvents: mouseleave; to: 0; dur: 100"
+                    animation__leave2="property: components.geometry.data.thetaLength; startEvents: mouseleave; to: 0; dur: 100">
+                </a-ring>
+            </a-entity>
+            <a-cursor
                 id="cursor"
-                animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
-                animation__fusing="property: fuse-scale; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
-                event-set__mouseenter="_event: mouseenter; color: springgreen"
-                event-set__mouseleave="_event: mouseleave; color: white"
+                fuse="true"
+                fuse-timeout="1500"
+                visible="false"
                 raycaster="objects: .clickable">
             </a-cursor>
         </a-entity>
+        </a-entity> <!-- Close camera rig -->
+
+        <!-- VR Controllers support - attached to rig for proper tracking -->
+        <a-entity id="left-hand" laser-controls="hand: left" raycaster="objects: .clickable; far: 100"></a-entity>
+        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable; far: 100"></a-entity>
 
         <!-- Navigation Hotspots - Complete Tour Flow -->
 

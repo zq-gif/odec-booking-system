@@ -18,6 +18,25 @@ import {
     ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 
+// Helper function to get file extension
+const getFileExtension = (url) => {
+    if (!url) return '';
+    const parts = url.split('.');
+    return parts[parts.length - 1].toLowerCase();
+};
+
+// Helper function to check if file is an image
+const isImageFile = (url) => {
+    const ext = getFileExtension(url);
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(ext);
+};
+
+// Helper function to check if file is a PDF
+const isPdfFile = (url) => {
+    const ext = getFileExtension(url);
+    return ext === 'pdf';
+};
+
 export default function Bookings({ auth, bookings }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all'); // all, facility, activity
@@ -447,16 +466,50 @@ export default function Bookings({ auth, bookings }) {
                                     </div>
                                 </div>
 
-                                {/* Receipt Image */}
+                                {/* Receipt Preview */}
                                 <div className="border-2 border-gray-200 rounded-lg p-4 bg-white">
-                                    <p className="text-sm font-medium text-gray-700 mb-3">Receipt Image</p>
+                                    <p className="text-sm font-medium text-gray-700 mb-3">
+                                        Receipt {isPdfFile(selectedReceipt.receiptUrl) ? 'Document' : 'Image'}
+                                        <span className="ml-2 text-xs text-gray-500 uppercase">
+                                            ({getFileExtension(selectedReceipt.receiptUrl)})
+                                        </span>
+                                    </p>
                                     {selectedReceipt.receiptUrl ? (
-                                        <img
-                                            src={selectedReceipt.receiptUrl}
-                                            alt="Payment Receipt"
-                                            className="max-w-full h-auto mx-auto rounded shadow-lg"
-                                            style={{ maxHeight: '500px' }}
-                                        />
+                                        <>
+                                            {isPdfFile(selectedReceipt.receiptUrl) ? (
+                                                // PDF Preview
+                                                <div className="w-full">
+                                                    <iframe
+                                                        src={selectedReceipt.receiptUrl}
+                                                        className="w-full rounded shadow-lg"
+                                                        style={{ height: '500px' }}
+                                                        title="Payment Receipt PDF"
+                                                    />
+                                                    <p className="text-center text-sm text-gray-500 mt-2">
+                                                        If the PDF doesn't load, click "Open in New Tab" below
+                                                    </p>
+                                                </div>
+                                            ) : isImageFile(selectedReceipt.receiptUrl) ? (
+                                                // Image Preview
+                                                <img
+                                                    src={selectedReceipt.receiptUrl}
+                                                    alt="Payment Receipt"
+                                                    className="max-w-full h-auto mx-auto rounded shadow-lg"
+                                                    style={{ maxHeight: '500px' }}
+                                                />
+                                            ) : (
+                                                // Unknown file type - show download link
+                                                <div className="text-center py-8">
+                                                    <DocumentTextIcon className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                                                    <p className="text-gray-600 mb-2">
+                                                        File type: <span className="font-semibold uppercase">{getFileExtension(selectedReceipt.receiptUrl)}</span>
+                                                    </p>
+                                                    <p className="text-sm text-gray-500">
+                                                        This file type cannot be previewed. Please download or open in a new tab.
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </>
                                     ) : (
                                         <div className="text-center py-8 text-gray-500">
                                             No receipt uploaded
